@@ -19,6 +19,12 @@ This repository is a learning project focused on understanding how low-level cry
 - Understand x86 assembly by writing and comparing low-level equivalents.
 - Connect cryptography and systems theory to real security concepts.
 
+## Stack
+
+- Language: C (C99), x86-64 Assembly (AT&T syntax)
+- Toolchain: gcc, as, gdb
+- Platform: macOS
+
 ## Devlog
 
 The [`/devlog`](./devlog) folder contains weekly notes documenting what was learned, what was built, and what came up during the process.
