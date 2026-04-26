@@ -20,7 +20,7 @@ void assert_equal(const char *test_name, const char *expected, const char *got) 
     }
 }
 
-int main() {
+int main(void) {
      /* --- Test 1: single-byte encrypt then decrypt --- */
     char msg1[] = "Hello";
     xor_single(msg1, 10);          /* encrypt */
@@ -31,7 +31,7 @@ int main() {
        H (72) XOR 10 = 66, e (101) XOR 10 = 107, ...
          These values are precomputed, and function must match them. */
     char msg2[] = "Hello";
-    char expected_cipher[] = {66, 107, 102, 102, 101, '\0'};
+    char expected_cipher[] = {66, 111, 102, 102, 101, '\0'};
     xor_single(msg2, 10);
     assert_equal("single-byte known ciphertext", expected_cipher, msg2);
 
