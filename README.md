@@ -27,7 +27,7 @@ This repository is a learning project focused on understanding how low-level cry
 
 ## Devlog
 
-The [`/devlog`](./devlog) folder contains weekly notes documenting what was learned, what was built, and what came up during the process.
+The [`/devlog`](./devlog) folder contains four weekly notes documenting what was learned, what was built, and what came up during the process.
 
 ## Warning
 
