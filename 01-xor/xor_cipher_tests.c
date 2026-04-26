@@ -6,6 +6,8 @@
     want to use them here, so we declare their signatures. */
 void xor_single(char *text, char key);
 void xor_multi(char *text, const char *key, int key_len);
+char frequency_attack(const char *ciphertext, int len);
+char known_plaintext_attack(char known_plain, char known_cipher);
 
 /* assert_equal: compares two strings.
     Prints PASS if equal, otherwise prints FAIL and shows expected value.
@@ -47,6 +49,32 @@ int main(void) {
     char msg4[] = "";
     xor_single(msg4, 10);
     assert_equal("empty string", "", msg4);
+
+    /* --- Test 5: frequency attack ---
+       We use an e-heavy text without spaces so 'e' stays dominant.
+       This keeps the demo aligned with the classic simple assumption. */
+    char long_msg[] = "theenemyneedstobeseeneverywhere";
+    char attack_key = 42;
+    xor_single(long_msg, attack_key);
+
+    char recovered_key = frequency_attack(long_msg, (int)strlen(long_msg));
+    if (recovered_key == attack_key) {
+        printf("PASS: frequency attack recovered key = %d\n", recovered_key);
+    } else {
+        printf("FAIL: frequency attack - expected %d, got %d\n", attack_key, recovered_key);
+    }
+
+    /* --- Test 6: known-plaintext attack ---
+       If one plaintext char and cipher char pair is known,
+       single-byte XOR key is directly recoverable. */
+    char plain_char = 'H';
+    char cipher_char = 'H' ^ 10;
+    char kp_key = known_plaintext_attack(plain_char, cipher_char);
+    if (kp_key == 10) {
+        printf("PASS: known-plaintext attack recovered key = %d\n", kp_key);
+    } else {
+        printf("FAIL: known-plaintext attack - expected 10, got %d\n", kp_key);
+    }
 
     return 0;
 }
