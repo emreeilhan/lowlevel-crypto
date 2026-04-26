@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/emreilhan/Code/lowlevel-crypto/01-xor/xor_cipher'
+relocations:     []
+...
