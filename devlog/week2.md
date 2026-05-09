@@ -31,3 +31,19 @@ The actual attack is a dot product: for each shift, compute the letter frequenci
 Caesar has 25 useful keys. That is `log2(25) ≈ 4.7 bits` of entropy. Single-byte XOR has 256 keys, which is 8 bits. The gap sounds small but both ciphers fall apart the same way: letter frequency survives the transformation completely, and once patterns survive, the cipher is already broken. The key count barely matters.
 
 Next week I want to look at hash functions. A cipher is reversible by design. I want to understand what it actually means for something to be one-way.
+
+## Hash Follow-Up
+
+I came back and added the hash part instead of pretending the Caesar week was the whole milestone.
+
+I implemented djb2 in C. The classic version starts with 5381, then walks over each byte with `hash = hash * 33 + c`. I also added the XOR variant, where the last step becomes `hash * 33 ^ c`.
+
+I kept the output masked to 32 bits because I wanted the overflow behavior to be explicit instead of depending on whatever size `unsigned long` happens to be on my machine. That was a small detail, but it made the implementation feel more honest.
+
+The main thing that clicked is that a hash and a cipher are trying to do different jobs. With XOR and Caesar, I encrypted something and then decrypted it. The original message is supposed to come back. With djb2, there is no decrypt button.
+
+I also wrote a small bucket demo. When I mapped ten words into eight buckets, collisions showed up immediately. That made collisions feel less abstract. It is not a bug that two inputs can land in the same bucket. It is part of the tradeoff.
+
+djb2 is useful as a simple table hash, but it is not a cryptographic hash. It has no secret, it is fast to compute, and it does not seriously resist someone choosing inputs on purpose. So no, I would not use it for password storage. Password storage needs something slow and salted, like Argon2, bcrypt, or scrypt.
+
+The multiplier 33 also made more sense after writing the code. `hash * 33` can be read as `(hash << 5) + hash`, because 33 is 32 + 1. That was the low-level moment for me: the formula turns into shifts, additions, overflow, and bytes moving through a loop.
