@@ -19,6 +19,21 @@ This repository is a learning project focused on understanding how low-level cry
 - Understand x86 assembly by writing and comparing low-level equivalents.
 - Connect cryptography and systems theory to real security concepts.
 
+## Running Checks
+
+```bash
+gcc -std=c99 -Wall -Wextra -O2 01-xor/xor_cipher.c 01-xor/xor_cipher_tests.c -o /tmp/xor_tests
+/tmp/xor_tests
+
+gcc -std=c99 -Wall -Wextra -O2 01-xor/xor_cipher.c 01-xor/xor_timing_bench.c -o /tmp/xor_timing_bench
+/tmp/xor_timing_bench
+
+clang -arch x86_64 -Wall -Wextra -O2 01-xor/xor_cipher.c 01-xor/xor_asm.s 01-xor/xor_asm_tests.c -o /tmp/xor_asm_tests
+arch -x86_64 /tmp/xor_asm_tests
+```
+
+The timing benchmark is a smoke test for obvious input-dependent drift, not a formal constant-time proof.
+
 ## Stack
 
 - Language: C (C99), x86-64 Assembly (AT&T syntax)

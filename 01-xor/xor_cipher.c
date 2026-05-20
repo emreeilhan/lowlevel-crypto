@@ -43,9 +43,13 @@ char known_plaintext_attack(char known_plain, char known_cipher) {
     return (char)(known_plain ^ known_cipher);
 }
 
-/* Constant-time XOR - no timing leak.
-   volatile: prevents compiler optimization of this buffer so each step is executed.
-   No branch: we avoid if/else so CPU follows the same path every time. */
+/* Timing-stable XOR attempt.
+   volatile: keeps the output writes visible to the compiler.
+   No branch: input byte values do not choose different code paths.
+
+   This is still educational code, not a formal constant-time guarantee.
+   Use xor_timing_bench.c to measure whether the implementation shows obvious
+   input-dependent timing differences on the current compiler and machine. */
 void xor_constant_time(const char *plaintext, const char *key,
                         int key_len, volatile char *out, int len) {
     for (int i = 0; i < len; i++) {

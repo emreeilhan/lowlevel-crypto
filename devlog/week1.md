@@ -6,7 +6,7 @@ Date: 2026-04-26
 
 This week I implemented an XOR cipher in C from scratch. I did not use crypto libraries for the cipher logic, so it felt much more real to me. It was just me, chars, loops, keys, and a lot of checking whether the output actually made sense.
 
-I wrote three versions. The first one was single-byte key encryption and decryption. The second one was a multi-byte key version, where the key repeats using `i % key_len`. The third one was a constant-time version using `volatile`, because I wanted to start thinking about what the compiler might do to my code.
+I wrote three versions. The first one was single-byte key encryption and decryption. The second one was a multi-byte key version, where the key repeats using `i % key_len`. The third one was a timing-stable attempt using `volatile`, because I wanted to start thinking about what the compiler might do to my code. I also added a small timing benchmark so I do not make a constant-time claim without at least measuring for obvious input-dependent drift.
 
 I also wrote a separate test file with assertions, so I did not have to manually stare at outputs every time. The known-ciphertext test actually caught a bug in my own thinking. I had calculated `e XOR 10` wrong. I expected 107, but the correct answer is 111. That felt annoying for about five seconds, then useful.
 
@@ -22,7 +22,7 @@ Then I apply XOR again with the same key. `01000010 XOR 00001010` gives me `0100
 
 `volatile` confused me at first because the code still looks like normal XOR. But the compiler is too smart sometimes. It can decide that some operation is redundant, or that a memory write does not matter, and then optimize it away.
 
-In normal programming, faster code sounds good. But in security-critical code, this can be dangerous because the code that actually runs might not be the exact code I thought I wrote. The way I understand `volatile` now is that it tells the compiler: touch this every single time, no shortcuts. This was my first real encounter with the idea that correctness and security are different things.
+In normal programming, faster code sounds good. But in security-critical code, this can be dangerous because the code that actually runs might not be the exact code I thought I wrote. The way I understand `volatile` now is that it tells the compiler: touch this every single time, no shortcuts. That still does not prove constant-time behavior by itself, so the benchmark compares repeated runs on different same-length inputs and treats the result as a smoke test, not a formal guarantee. This was my first real encounter with the idea that correctness and security are different things.
 
 ## The Weakness I Discovered
 
