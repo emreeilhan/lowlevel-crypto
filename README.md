@@ -32,7 +32,7 @@ clang -arch x86_64 -Wall -Wextra -O2 01-xor/xor_cipher.c 01-xor/xor_asm.s 01-xor
 arch -x86_64 /tmp/xor_asm_tests
 ```
 
-The timing benchmark is a smoke test for obvious input-dependent drift, not a formal constant-time proof.
+The timing benchmark is a smoke test for obvious input-dependent drift, not a formal constant-time proof. The assembly comparison reports 101 serialized `rdtsc` samples with median/min/avg/max cycle counts; those numbers are local measurements, not portable performance proof.
 
 ## Stack
 

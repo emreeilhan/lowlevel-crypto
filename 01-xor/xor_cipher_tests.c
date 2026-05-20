@@ -30,7 +30,7 @@ int main(void) {
     assert_equal("single-byte round-trip", "Hello", msg1);
 
      /* --- Test 2: verify known ciphertext ---
-       H (72) XOR 10 = 66, e (101) XOR 10 = 107, ...
+       H (72) XOR 10 = 66, e (101) XOR 10 = 111, ...
          These values are precomputed, and function must match them. */
     char msg2[] = "Hello";
     char expected_cipher[] = {66, 111, 102, 102, 101, '\0'};

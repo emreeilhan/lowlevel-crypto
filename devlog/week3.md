@@ -9,7 +9,7 @@ The C version was already simple, but assembly made every small assumption visib
 
 I added a C test file that calls both versions. First it encrypts the same plaintext with `xor_single` and `xor_asm_encrypt`, then compares the outputs. Then it runs the assembly function a second time with the same key to prove the round trip still works.
 
-I also added an `rdtsc` comparison. On my machine the handwritten assembly version was slower than the optimized C version in this local benchmark. That was useful because it killed the easy assumption that handwritten assembly is automatically faster. The exact cycle count depends on CPU, compiler, architecture translation, and what else the machine is doing.
+I also added a more careful `rdtsc` comparison. It warms up both functions, takes 101 serialized samples, and reports median/min/avg/max cycle counts instead of trusting one run. On my machine the handwritten assembly version was slower than the optimized C version in this local benchmark. That was useful because it killed the easy assumption that handwritten assembly is automatically faster. The exact cycle count depends on CPU, compiler, architecture translation, and what else the machine is doing.
 
 ## What I learned
 
@@ -36,7 +36,7 @@ clang -arch x86_64 -Wall -Wextra -O2 01-xor/xor_cipher.c 01-xor/xor_asm.s 01-xor
 arch -x86_64 /tmp/xor_asm_tests
 ```
 
-That also made the benchmark feel more honest. I can compare C and assembly locally, but I should not pretend the result is a general performance truth.
+That also made the benchmark feel more honest. I can compare C and assembly locally, but I should not pretend the result is a general performance truth. The test also prints a fixed-length C loop as a compiler baseline, because the public C function includes `strlen()` while the assembly function scans to the NUL byte in its own loop.
 
 ## Next week
 
