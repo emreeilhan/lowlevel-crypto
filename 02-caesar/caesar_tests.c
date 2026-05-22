@@ -10,6 +10,8 @@ void caesar_rot13(char *text);
 void caesar_brute_force(const char *ciphertext);
 int  caesar_crack_ic(const char *ciphertext);
 
+static int failures = 0;
+
 /* assert_equal: compares two strings.
    Prints PASS if equal, otherwise prints FAIL and shows expected value.
    This makes tests automatic instead of manual visual checks. */
@@ -20,6 +22,7 @@ void assert_equal(const char *test_name, const char *expected, const char *got) 
         printf("FAIL: %s\n", test_name);
         printf("  Expected: %s\n", expected);
         printf("  Got:      %s\n", got);
+        failures++;
     }
 }
 
@@ -107,7 +110,8 @@ int main(void) {
         printf("PASS: IC crack recovered shift = %d\n", recovered);
     } else {
         printf("FAIL: IC crack - expected 4, got %d\n", recovered);
+        failures++;
     }
 
-    return 0;
+    return failures;
 }

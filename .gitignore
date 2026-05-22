@@ -1,0 +1,19 @@
+# Build artifacts
+*.o
+*.out
+*.obj
+*.exe
+
+# Debug symbols
+*.dSYM/
+
+# Compiled test/demo binaries (READMEs build some of these into their folders)
+01-xor/xor_cipher
+01-xor/xor_asm_tests
+01-xor/xor_timing_bench
+02-caesar/caesar_tests
+03-hash/hash_tests
+test_xor
+
+# OS / editor noise
+.DS_Store

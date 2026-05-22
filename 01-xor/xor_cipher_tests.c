@@ -9,6 +9,8 @@ void xor_multi(char *text, const char *key, int key_len);
 char frequency_attack(const char *ciphertext, int len);
 char known_plaintext_attack(char known_plain, char known_cipher);
 
+static int failures = 0;
+
 /* assert_equal: compares two strings.
     Prints PASS if equal, otherwise prints FAIL and shows expected value.
     This makes tests automatic instead of manual visual checks. */
@@ -19,6 +21,7 @@ void assert_equal(const char *test_name, const char *expected, const char *got) 
         printf("FAIL: %s\n", test_name);
         printf("  Expected: %s\n", expected);
         printf("  Got:      %s\n", got);
+        failures++;
     }
 }
 
@@ -62,6 +65,7 @@ int main(void) {
         printf("PASS: frequency attack recovered key = %d\n", recovered_key);
     } else {
         printf("FAIL: frequency attack - expected %d, got %d\n", attack_key, recovered_key);
+        failures++;
     }
 
     /* --- Test 6: known-plaintext attack ---
@@ -74,7 +78,8 @@ int main(void) {
         printf("PASS: known-plaintext attack recovered key = %d\n", kp_key);
     } else {
         printf("FAIL: known-plaintext attack - expected 10, got %d\n", kp_key);
+        failures++;
     }
 
-    return 0;
+    return failures;
 }
