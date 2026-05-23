@@ -20,8 +20,9 @@ run() {
     echo
 }
 
-run xor_tests    01-xor/xor_cipher.c 01-xor/xor_cipher_tests.c
-run caesar_tests 02-caesar/caesar.c  02-caesar/caesar_tests.c
-run hash_tests   03-hash/hash.c      03-hash/hash_tests.c
+run xor_tests    01-xor/xor_cipher.c       01-xor/xor_cipher_tests.c
+run caesar_tests 02-caesar/caesar.c        02-caesar/caesar_tests.c
+run hash_tests   03-hash/hash.c            03-hash/hash_tests.c
+run ct_tests     05-constant-time/ct_compare.c 05-constant-time/ct_compare_tests.c
 
 echo "All C suites passed."

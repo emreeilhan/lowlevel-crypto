@@ -8,7 +8,7 @@ void caesar_encode(char *text, int shift);
 void caesar_decode(char *text, int shift);
 void caesar_rot13(char *text);
 void caesar_brute_force(const char *ciphertext);
-int  caesar_crack_ic(const char *ciphertext);
+int  caesar_crack_freq(const char *ciphertext);
 
 static int failures = 0;
 
@@ -96,7 +96,7 @@ int main(void) {
     printf("PASS: brute_force ran without crash\n");
 
     /* --- Test 10: frequency crack recovers correct shift ---
-       encode a known sentence with shift 4, then ask crack_ic to find it.
+       encode a known sentence with shift 4, then ask crack_freq to find it.
        the function scores all 26 shifts by letter frequency correlation
        against English; the correct shift should score highest. */
     char known_plain[] = "the quick brown fox jumps over the lazy dog";
@@ -105,11 +105,11 @@ int main(void) {
     cipher10[sizeof(cipher10) - 1] = '\0';
     caesar_encode(cipher10, 4);
 
-    int recovered = caesar_crack_ic(cipher10);
+    int recovered = caesar_crack_freq(cipher10);
     if (recovered == 4) {
-        printf("PASS: IC crack recovered shift = %d\n", recovered);
+        printf("PASS: frequency-correlation crack recovered shift = %d\n", recovered);
     } else {
-        printf("FAIL: IC crack - expected 4, got %d\n", recovered);
+        printf("FAIL: frequency-correlation crack - expected 4, got %d\n", recovered);
         failures++;
     }
 

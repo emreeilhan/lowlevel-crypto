@@ -9,11 +9,27 @@ This repository is a learning project focused on understanding how low-level cry
 ## What's Inside
 
 - `01-xor/` — XOR cipher in C, plus an x86-64 assembly reimplementation of the encrypt loop and an `rdtsc` cycle comparison.
-- `02-caesar/` — Caesar cipher in C: encode/decode, brute-force, and chi-squared frequency cracking.
+- `02-caesar/` — Caesar cipher in C: encode/decode, brute-force, and letter-frequency correlation cracking (a dot product against English frequencies — not chi-squared or index of coincidence; see `devlog/week2.md` for why I switched).
 - `03-hash/` — handwritten `djb2` hash in C, with a bucket and collision demo.
-- `04-buffer-overflow/` — a small, deliberately vulnerable C program for studying stack overflows under gdb.
+- `04-buffer-overflow/` — a deliberately vulnerable C program (`vuln.c`) plus a full exploit-and-defend walkthrough in [its README](04-buffer-overflow/README.md): find the offset, hijack the return address, then break the exploit with a canary, ASLR, and NX one at a time.
+- `05-constant-time/` — early-exit vs constant-time byte comparison, with a timing-leak demo: the same correct answer, but one version leaks a secret through its runtime.
 
 Only the XOR module has an assembly port; see [Scope notes](#scope-notes) below.
+
+## Reviewing this in 3 minutes
+
+If you are screening this quickly, here is the fast path:
+
+1. **Read two files.** `04-buffer-overflow/vuln.c` (the stack overflow) and `05-constant-time/ct_compare.c` (timing side channel) are the two that map most directly to low-level and embedded security work. Each has a short README next to it.
+2. **Run the suites:**
+   ```bash
+   ./run_tests.sh
+   ```
+   Expect every check to print `PASS:`, the script to end with `All C suites passed.`, and the exit code to be `0`. A single failing assertion makes that suite return nonzero and aborts the run.
+3. **Check CI.** [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the same suites on native x86-64 Linux under `-fsanitize=address,undefined` on every push, so memory and undefined-behavior bugs would show up there.
+4. **Read one devlog.** `devlog/week4.md` is the buffer-overflow week — the 24-byte offset, the control-flow hijack, and what each mitigation defeats.
+
+Everything else (XOR, Caesar, djb2) follows the same "build the primitive, then break it" pattern, documented week by week in [`/devlog`](./devlog).
 
 ## Goals
 

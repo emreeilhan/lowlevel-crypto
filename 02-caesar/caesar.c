@@ -52,9 +52,11 @@ void caesar_brute_force(const char *ciphertext) {
     }
 }
 
-/* try all 26 shifts, score each by comparing letter frequencies against
-   expected English. the correct shift produces the highest correlation. */
-int caesar_crack_ic(const char *ciphertext) {
+/* try all 26 shifts, score each by correlating its letter frequencies with
+   expected English frequencies (a dot product). the correct shift lines the
+   distributions up and produces the highest score. this is frequency
+   correlation, not chi-squared and not index of coincidence. */
+int caesar_crack_freq(const char *ciphertext) {
     /* expected English letter frequencies, a-z */
     static const double english[26] = {
         0.0817, 0.0149, 0.0278, 0.0425, 0.1270, 0.0223, 0.0202, 0.0609,
