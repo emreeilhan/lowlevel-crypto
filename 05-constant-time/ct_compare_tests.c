@@ -1,3 +1,7 @@
+/* clock_gettime / CLOCK_MONOTONIC are POSIX.1b; under strict -std=c99 glibc
+   hides them unless this feature-test macro is set before any include. */
+#define _POSIX_C_SOURCE 199309L
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
