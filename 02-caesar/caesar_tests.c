@@ -1,117 +1,68 @@
-#include <stdio.h>
-#include <string.h>
-
-/* Declare the functions we want to test here.
-   They are implemented in a separate .c file, but we
-   want to use them here, so we declare their signatures. */
-void caesar_encode(char *text, int shift);
-void caesar_decode(char *text, int shift);
-void caesar_rot13(char *text);
-void caesar_brute_force(const char *ciphertext);
-int  caesar_crack_freq(const char *ciphertext);
-
-static int failures = 0;
-
-/* assert_equal: compares two strings.
-   Prints PASS if equal, otherwise prints FAIL and shows expected value.
-   This makes tests automatic instead of manual visual checks. */
-void assert_equal(const char *test_name, const char *expected, const char *got) {
-    if (strcmp(expected, got) == 0) {
-        printf("PASS: %s\n", test_name);
-    } else {
-        printf("FAIL: %s\n", test_name);
-        printf("  Expected: %s\n", expected);
-        printf("  Got:      %s\n", got);
-        failures++;
-    }
-}
-
+#include <limits.h>
+#include "caesar.h"
+#include "../include/lab_test.h"
 int main(void) {
-    /* --- Test 1: basic encode ---
-       Proves the forward shift is correct for a known case.
-       'A' shifted by 3 should be 'D', 'Z' by 3 should be 'C' (wrap). */
-    char msg1[] = "ABC";
-    caesar_encode(msg1, 3);
-    assert_equal("basic encode shift 3", "DEF", msg1);
-
-    /* --- Test 2: encode/decode round-trip ---
-       The fundamental property: encode then decode with the same shift
-       must return the original. If this fails, decode is not the inverse. */
-    char msg2[] = "Hello, World!";
-    caesar_encode(msg2, 7);
-    caesar_decode(msg2, 7);
-    assert_equal("encode/decode round-trip", "Hello, World!", msg2);
-
-    /* --- Test 3: non-alpha characters are preserved ---
-       Spaces, commas, exclamation marks should pass through unchanged.
-       Only letters participate in the shift. */
-    char msg3[] = "Hi! 123";
-    caesar_encode(msg3, 5);
-    caesar_decode(msg3, 5);
-    assert_equal("non-alpha preserved through round-trip", "Hi! 123", msg3);
-
-    /* --- Test 4: wrap-around at Z ---
-       'Z' + 1 should become 'A', not something outside the alphabet.
-       This verifies the modular arithmetic handles the boundary correctly. */
-    char msg4[] = "XYZ";
-    caesar_encode(msg4, 3);
-    assert_equal("wrap-around at Z", "ABC", msg4);
-
-    /* --- Test 5: negative shift (large decode) ---
-       A shift of -3 is equivalent to a shift of +23 in a 26-letter alphabet.
-       This checks that the +26 in the formula prevents a negative modulo. */
-    char msg5[] = "ABC";
-    caesar_encode(msg5, -3);
-    assert_equal("negative shift wraps correctly", "XYZ", msg5);
-
-    /* --- Test 6: ROT13 idempotency ---
-       ROT13 applied twice must return the original. This works because
-       13 + 13 = 26, a full rotation. encode == decode is the special property. */
-    char msg6[] = "Hello";
-    caesar_rot13(msg6);
-    caesar_rot13(msg6);
-    assert_equal("ROT13 applied twice returns original", "Hello", msg6);
-
-    /* --- Test 7: ROT13 known output ---
-       'A' -> 'N', 'B' -> 'O', 'C' -> 'P': verifies the shift value is 13. */
-    char msg7[] = "ABC";
-    caesar_rot13(msg7);
-    assert_equal("ROT13 known output", "NOP", msg7);
-
-    /* --- Test 8: lowercase round-trip ---
-       Upper and lowercase letters have different ASCII bases ('A'=65, 'a'=97).
-       This confirms the base selection in encode handles both independently. */
-    char msg8[] = "hello";
-    caesar_encode(msg8, 13);
-    caesar_decode(msg8, 13);
-    assert_equal("lowercase round-trip", "hello", msg8);
-
-    /* --- Test 9: brute force runs without crash ---
-       We do not verify the output text here — brute force is visual.
-       The test proves the function iterates all 25 shifts without
-       segfaulting or corrupting memory on a typical input. */
-    printf("\n");
-    caesar_brute_force("Khoor");
-    printf("\n");
-    printf("PASS: brute_force ran without crash\n");
-
-    /* --- Test 10: frequency crack recovers correct shift ---
-       encode a known sentence with shift 4, then ask crack_freq to find it.
-       the function scores all 26 shifts by letter frequency correlation
-       against English; the correct shift should score highest. */
-    char known_plain[] = "the quick brown fox jumps over the lazy dog";
-    char cipher10[64];
-    strncpy(cipher10, known_plain, sizeof(cipher10) - 1);
-    cipher10[sizeof(cipher10) - 1] = '\0';
-    caesar_encode(cipher10, 4);
-
-    int recovered = caesar_crack_freq(cipher10);
-    if (recovered == 4) {
-        printf("PASS: frequency-correlation crack recovered shift = %d\n", recovered);
-    } else {
-        printf("FAIL: frequency-correlation crack - expected 4, got %d\n", recovered);
-        failures++;
+    const uint8_t original[] = {0xa5,'A','z',0,'!',0xff,0x5a};
+    uint8_t bytes[sizeof(original)]; memcpy(bytes, original, sizeof(bytes));
+    const uint8_t expected[] = {0xa5,'D','c',0,'!',0xff,0x5a};
+    CHECK("ASCII encode binary", caesar_encode_bytes(bytes + 1, 5, 5, 3) == LAB_OK);
+    CHECK("known bytes, NUL, guards", memcmp(bytes, expected, sizeof(bytes)) == 0);
+    CHECK("decode", caesar_decode_bytes(bytes + 1, 5, 5, 3) == LAB_OK);
+    CHECK("inverse", memcmp(bytes, original, sizeof(bytes)) == 0);
+    int shifts[] = {INT_MIN, INT_MAX, -100000, -26, -3, 0, 26, 100000};
+    int all_ok = 1;
+    for (size_t s = 0; s < sizeof(shifts)/sizeof(shifts[0]); ++s) {
+        uint8_t all[256], copy[256];
+        for (size_t i = 0; i < sizeof(all); ++i) all[i] = (uint8_t)i;
+        memcpy(copy, all, sizeof(all));
+        if (caesar_encode_bytes(all, sizeof(all), sizeof(all), shifts[s]) != LAB_OK ||
+            caesar_decode_bytes(all, sizeof(all), sizeof(all), shifts[s]) != LAB_OK || memcmp(all, copy, sizeof(all)) != 0) all_ok = 0;
     }
-
-    return failures;
+    CHECK("all byte values / extreme shifts roundtrip", all_ok);
+    uint8_t minimum[] = {'A','a','Z','z'};
+    int residue = INT_MIN % 26; if (residue < 0) residue += 26;
+    uint8_t minimum_expected[] = {(uint8_t)('A' + (26-residue)%26), (uint8_t)('a' + (26-residue)%26),
+                                  (uint8_t)('A' + (25+26-residue)%26), (uint8_t)('a' + (25+26-residue)%26)};
+    CHECK("INT_MIN decode direct", caesar_decode_bytes(minimum, sizeof(minimum), sizeof(minimum), INT_MIN) == LAB_OK && memcmp(minimum, minimum_expected, sizeof(minimum)) == 0);
+    CHECK("zero NULL", caesar_decode_bytes(NULL, 0, 0, INT_MIN) == LAB_OK);
+    CHECK("positive NULL", caesar_encode_bytes(NULL, 1, 1, 3) == LAB_INVALID_ARGUMENT);
+    CHECK("capacity", caesar_decode_bytes(bytes, 1, 2, 3) == LAB_CAPACITY_ERROR);
+    CHECK("invalid unchanged", memcmp(bytes, original, sizeof(bytes)) == 0);
+    int result = 99;
+    CHECK("crack zero", caesar_crack_freq_bytes(NULL, 0, &result) == LAB_OK && result == 0);
+    CHECK("crack NULL output zero", caesar_crack_freq_bytes(NULL, 0, NULL) == LAB_INVALID_ARGUMENT);
+    CHECK("crack NULL input", caesar_crack_freq_bytes(NULL, 1, &result) == LAB_INVALID_ARGUMENT);
+    CHECK("crack error output unchanged", result == 0);
+    uint8_t demo[CAESAR_DEMO_MAX + 1]; memset(demo, 'e', sizeof(demo));
+    CHECK("demo limit minus one", caesar_crack_freq_bytes(demo, CAESAR_DEMO_MAX - 1, &result) == LAB_OK && result == 0);
+    CHECK("demo at limit", caesar_crack_freq_bytes(demo, CAESAR_DEMO_MAX, &result) == LAB_OK && result == 0);
+    result = 99;
+    CHECK("demo over limit", caesar_crack_freq_bytes(demo, sizeof(demo), &result) == LAB_LIMIT_ERROR && result == 99);
+    FILE *stream = tmpfile();
+    CHECK("test stream", stream != NULL);
+    if (stream != NULL) {
+        CHECK("bruteforce limit minus one", caesar_brute_force_bytes(demo, CAESAR_DEMO_MAX - 1, stream) == LAB_OK);
+        CHECK("bruteforce at limit", caesar_brute_force_bytes(demo, CAESAR_DEMO_MAX, stream) == LAB_OK);
+        CHECK("bruteforce over limit", caesar_brute_force_bytes(demo, sizeof(demo), stream) == LAB_LIMIT_ERROR);
+        CHECK("bruteforce empty", caesar_brute_force_bytes(NULL, 0, stream) == LAB_OK);
+        CHECK("bruteforce NULL data", caesar_brute_force_bytes(NULL, 1, stream) == LAB_INVALID_ARGUMENT);
+        CHECK("close stream", fclose(stream) == 0);
+    }
+    CHECK("bruteforce missing stream", caesar_brute_force_bytes(demo, 1, NULL) == LAB_INVALID_ARGUMENT);
+    char text[] = "Hello, World!";
+    caesar_encode(text, INT_MIN); caesar_decode(text, INT_MIN);
+    CHECK("text INT_MIN", strcmp(text, "Hello, World!") == 0);
+    caesar_rot13(text); caesar_rot13(text);
+    CHECK("ROT13", strcmp(text, "Hello, World!") == 0);
+    caesar_encode(NULL, 1); caesar_decode(NULL, INT_MIN); caesar_brute_force(NULL);
+    CHECK("crack NULL wrapper", caesar_crack_freq(NULL) == -1);
+    CHECK("empty text", caesar_crack_freq("") == 0);
+    char too_long[CAESAR_DEMO_MAX + 2]; memset(too_long, 'e', sizeof(too_long)); too_long[sizeof(too_long)-1] = 0;
+    CHECK("bounded text wrapper", caesar_crack_freq(too_long) == -1);
+    int alias = 99;
+    CHECK("crack output overlaps input", caesar_crack_freq_bytes((const uint8_t *)&alias, sizeof(alias), &alias) == LAB_OVERLAP_ERROR && alias == 99);
+    char frequency[] = "thefrequencyoflettersinenglishtextenablesautomaticdecryption";
+    caesar_encode(frequency, 4);
+    CHECK("correlation recovers sample", caesar_crack_freq(frequency) == 4);
+    return lab_test_finish("caesar");
 }

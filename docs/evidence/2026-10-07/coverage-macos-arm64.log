@@ -1,0 +1,10 @@
+mkdir -p build/coverage/bin
+clang -std=c99 -O0 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fprofile-instr-generate -fcoverage-mapping 01-xor/xor_cipher.c 01-xor/xor_cipher_tests.c  -o build/coverage/bin/xor_tests
+clang -std=c99 -O0 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fprofile-instr-generate -fcoverage-mapping 02-caesar/caesar.c 02-caesar/caesar_tests.c  -o build/coverage/bin/caesar_tests
+clang -std=c99 -O0 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fprofile-instr-generate -fcoverage-mapping 03-hash/hash.c 03-hash/hash_tests.c  -o build/coverage/bin/hash_tests
+clang -std=c99 -O0 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fprofile-instr-generate -fcoverage-mapping 05-constant-time/ct_compare.c 05-constant-time/ct_compare_tests.c  -o build/coverage/bin/compare_tests
+xor: 34 checks, 0 failures
+caesar: 32 checks, 0 failures
+hash: 23 checks, 0 failures
+compare: 23 checks, 0 failures
+Coverage artifacts: build/coverage

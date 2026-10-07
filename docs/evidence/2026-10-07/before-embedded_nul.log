@@ -1,0 +1,3 @@
+roundtrip bytes: 00 03 (expected 41 42)
+
+Expected pre-fix failure exit: 1

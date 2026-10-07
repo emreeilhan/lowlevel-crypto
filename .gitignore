@@ -17,3 +17,8 @@ test_xor
 
 # OS / editor noise
 .DS_Store
+
+# Generated binaries, profiles, measurement output
+/build/
+__pycache__/
+*.pyc

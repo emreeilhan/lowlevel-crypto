@@ -1,0 +1,15 @@
+build/regression-before/xor_cipher.c:14:35: runtime error: division by zero
+==26648==WARNING: external symbolizer didn't start up correctly!
+==26648==WARNING: Can't read from symbolizer at fd 3
+==26648==WARNING: atos failed to symbolize address "0x10479ca78"
+==26648==WARNING: Can't read from symbolizer at fd 3
+==26648==WARNING: atos failed to symbolize address "0x10479d248"
+==26648==WARNING: Can't read from symbolizer at fd 3
+==26648==WARNING: atos failed to symbolize address "0x19b44be7c"
+    #0 0x00010479ca78 in xor_multi+0x148 (/private/tmp/embedded-upgrades-20261007/lowlevel-crypto/build/regression-before/empty_key:arm64+0x100000a78)
+    #1 0x00010479d248 in main+0xc4 (/private/tmp/embedded-upgrades-20261007/lowlevel-crypto/build/regression-before/empty_key:arm64+0x100001248)
+    #2 0x00019b44be7c in start+0x1a1c (/usr/lib/dyld:arm64e+0x31e7c)
+
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior build/regression-before/xor_cipher.c:14:35 
+
+Expected pre-fix failure exit: 134

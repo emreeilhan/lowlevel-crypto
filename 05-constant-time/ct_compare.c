@@ -1,39 +1,31 @@
 #include "ct_compare.h"
-
-/*
- * Early-exit compare. This is the shape of a naive secret/token check:
- *
- *     if (memcmp(provided_token, real_token, n) == 0) grant_access();
- *
- * It returns the moment two bytes differ, so a token that shares a longer
- * prefix with the real one takes measurably longer to reject. An attacker who
- * can time the response recovers the secret one byte at a time instead of
- * brute-forcing the whole thing.
- */
-int insecure_compare(const unsigned char *a, const unsigned char *b, size_t n) {
-    for (size_t i = 0; i < n; i++) {
-        if (a[i] != b[i]) {
-            return 0;   /* the early exit is the leak */
-        }
-    }
-    return 1;
+static lab_status validate_compare(const uint8_t *a, const uint8_t *b, size_t length, bool *equal) {
+    if (equal == NULL || (length != 0 && (a == NULL || b == NULL))) return LAB_INVALID_ARGUMENT;
+    if (lab_ranges_overlap(equal, sizeof(*equal), a, length) ||
+        lab_ranges_overlap(equal, sizeof(*equal), b, length)) return LAB_OVERLAP_ERROR;
+    return LAB_OK;
 }
-
-/*
- * Constant-time compare. Fold every byte difference into one accumulator and
- * only decide at the end. The loop always runs all n iterations and never
- * branches on the data, so the runtime is independent of where the inputs
- * differ.
- */
+lab_status compare_full_scan(const uint8_t *a, const uint8_t *b, size_t length, bool *equal) {
+    lab_status status = validate_compare(a, b, length, equal);
+    if (status != LAB_OK) return status;
+    uint8_t difference = 0;
+    for (size_t i = 0; i < length; ++i) difference |= (uint8_t)(a[i] ^ b[i]);
+    *equal = difference == 0;
+    return LAB_OK;
+}
+lab_status compare_early_exit(const uint8_t *a, const uint8_t *b, size_t length, bool *equal) {
+    lab_status status = validate_compare(a, b, length, equal);
+    if (status != LAB_OK) return status;
+    for (size_t i = 0; i < length; ++i)
+        if (a[i] != b[i]) { *equal = false; return LAB_OK; }
+    *equal = true;
+    return LAB_OK;
+}
+int insecure_compare(const unsigned char *a, const unsigned char *b, size_t n) {
+    bool equal = false;
+    return compare_early_exit(a, b, n, &equal) == LAB_OK && equal;
+}
 int constant_time_compare(const unsigned char *a, const unsigned char *b, size_t n) {
-    unsigned char diff = 0;
-
-    for (size_t i = 0; i < n; i++) {
-        diff |= (unsigned char)(a[i] ^ b[i]);
-    }
-
-    /* Branchless fold: 1 when diff == 0, else 0.
-       diff is 0..255. (x - 1) >> 8 is 0xFF..FF only when x == 0. */
-    unsigned int x = diff;
-    return (int)(1u & ((x - 1u) >> 8));
+    bool equal = false;
+    return compare_full_scan(a, b, n, &equal) == LAB_OK && equal;
 }

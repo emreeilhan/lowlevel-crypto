@@ -1,22 +1,15 @@
 #ifndef CAESAR_H
 #define CAESAR_H
-
-/* shift each alpha character by `shift`, skip non-alpha, in-place */
+#include <stdio.h>
+#include "../include/lab_status.h"
+#define CAESAR_DEMO_MAX 4096U
+lab_status caesar_encode_bytes(uint8_t *data, size_t capacity, size_t length, int shift);
+lab_status caesar_decode_bytes(uint8_t *data, size_t capacity, size_t length, int shift);
+lab_status caesar_crack_freq_bytes(const uint8_t *data, size_t length, int *shift);
+lab_status caesar_brute_force_bytes(const uint8_t *data, size_t length, FILE *stream);
 void caesar_encode(char *text, int shift);
-
-/* undo encode by calling it with -shift */
 void caesar_decode(char *text, int shift);
-
-/* caesar cipher with shift=13; applying it twice gets back the original
-   because 13+13=26, a full rotation */
 void caesar_rot13(char *text);
-
-/* print all 25 possible decodes so the plaintext can be spotted by eye */
 void caesar_brute_force(const char *ciphertext);
-
-/* find the shift by correlating each candidate's letter frequencies against
-   expected English frequencies (a dot product, not chi-squared or IC).
-   returns the best-scoring shift (0-25). */
 int caesar_crack_freq(const char *ciphertext);
-
-#endif /* CAESAR_H */
+#endif

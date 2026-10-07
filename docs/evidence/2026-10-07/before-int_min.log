@@ -1,0 +1,15 @@
+build/regression-before/caesar.c:34:25: runtime error: negation of -2147483648 cannot be represented in type 'int'; cast to an unsigned type to negate this value to itself
+==26650==WARNING: external symbolizer didn't start up correctly!
+==26650==WARNING: Can't read from symbolizer at fd 3
+==26650==WARNING: atos failed to symbolize address "0x102508ba4"
+==26650==WARNING: Can't read from symbolizer at fd 3
+==26650==WARNING: atos failed to symbolize address "0x1025095f0"
+==26650==WARNING: Can't read from symbolizer at fd 3
+==26650==WARNING: atos failed to symbolize address "0x19b44be7c"
+    #0 0x000102508ba4 in caesar_decode+0x1a4 (/private/tmp/embedded-upgrades-20261007/lowlevel-crypto/build/regression-before/int_min:arm64+0x100000ba4)
+    #1 0x0001025095f0 in main+0xbc (/private/tmp/embedded-upgrades-20261007/lowlevel-crypto/build/regression-before/int_min:arm64+0x1000015f0)
+    #2 0x00019b44be7c in start+0x1a1c (/usr/lib/dyld:arm64e+0x31e7c)
+
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior build/regression-before/caesar.c:34:25 
+
+Expected pre-fix failure exit: 134

@@ -1,21 +1,82 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
-
 jobs:
-  test:
-    name: Test suites (ASan + UBSan, x86-64 Linux)
+  correctness:
+    name: Native Linux x86-64 / ${{ matrix.cc }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cc: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: C and benchmark-contract tests
+        env:
+          CC: ${{ matrix.cc }}
+        run: |
+          set -o pipefail
+          mkdir -p build/evidence
+          ./run_tests.sh 2>&1 | tee build/evidence/normal.log
+      - name: ASan and UBSan C tests
+        env:
+          CC: ${{ matrix.cc }}
+          ASAN_OPTIONS: abort_on_error=1:detect_leaks=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          set -o pipefail
+          make sanitize CC="$CC" 2>&1 | tee build/evidence/sanitizer.log
+      - name: Native x86-64 assembly equivalence, ABI and page guards
+        env:
+          CC: ${{ matrix.cc }}
+        run: |
+          set -o pipefail
+          uname -a | tee build/evidence/environment.txt
+          "$CC" --version >> build/evidence/environment.txt
+          make asm-test CC="$CC" 2>&1 | tee build/evidence/asm.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-x86-64-${{ matrix.cc }}-correctness
+          path: build/evidence/
+  coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Run C test suites under AddressSanitizer + UndefinedBehaviorSanitizer
+      - name: Install matching Clang/LLVM tools
+        run: sudo apt-get update && sudo apt-get install -y clang llvm
+      - name: C application coverage, excluding timing and ASM
         env:
-          CC: gcc
-          CFLAGS: "-std=c99 -Wall -Wextra -g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer"
-          ASAN_OPTIONS: "abort_on_error=1:detect_leaks=1"
-          UBSAN_OPTIONS: "halt_on_error=1:print_stacktrace=1"
-        run: ./run_tests.sh
+          CC: clang
+        run: ./scripts/run_coverage.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: llvm-source-coverage
+          path: build/coverage/
+  native-benchmark:
+    needs: correctness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Native x86-64 C/ASM timing after correctness (informational)
+        env:
+          CC: clang
+          EXPERIMENT: xor-asm
+          LENGTH: '4096'
+          ROUNDS: '1000'
+          SAMPLES: '31'
+          WARMUP: '3'
+          SEED: '20261007'
+          BENCH_OUT: build/native-x86-benchmark
+        run: ./run_benchmarks.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-x86-64-xor-timing
+          path: |
+            build/native-x86-benchmark/raw.csv
+            build/native-x86-benchmark/summary.json
+            build/native-x86-benchmark/metadata.json
+            build/native-x86-benchmark/binary-context.json
+            build/native-x86-benchmark/*generated.s
+            build/native-x86-benchmark/*correctness.log

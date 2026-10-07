@@ -1,0 +1,283 @@
+{
+  "scope": [
+    "01-xor/xor_cipher.c",
+    "02-caesar/caesar.c",
+    "03-hash/hash.c",
+    "05-constant-time/ct_compare.c",
+    "include/lab_status.h"
+  ],
+  "excludes": [
+    "tests",
+    "benchmarks",
+    "ASM",
+    "04-buffer-overflow"
+  ],
+  "files": [
+    {
+      "path": "01-xor/xor_cipher.c",
+      "summary": {
+        "branches": {
+          "count": 52,
+          "covered": 50,
+          "notcovered": 2,
+          "percent": 96.15384615384616
+        },
+        "functions": {
+          "count": 7,
+          "covered": 7,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 7,
+          "covered": 7,
+          "percent": 100
+        },
+        "lines": {
+          "count": 50,
+          "covered": 50,
+          "percent": 100
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 86,
+          "covered": 86,
+          "notcovered": 0,
+          "percent": 100
+        }
+      }
+    },
+    {
+      "path": "02-caesar/caesar.c",
+      "summary": {
+        "branches": {
+          "count": 72,
+          "covered": 64,
+          "notcovered": 8,
+          "percent": 88.88888888888889
+        },
+        "functions": {
+          "count": 13,
+          "covered": 13,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 13,
+          "covered": 13,
+          "percent": 100
+        },
+        "lines": {
+          "count": 90,
+          "covered": 88,
+          "percent": 97.77777777777777
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 118,
+          "covered": 114,
+          "notcovered": 4,
+          "percent": 96.61016949152543
+        }
+      }
+    },
+    {
+      "path": "03-hash/hash.c",
+      "summary": {
+        "branches": {
+          "count": 50,
+          "covered": 37,
+          "notcovered": 13,
+          "percent": 74
+        },
+        "functions": {
+          "count": 10,
+          "covered": 10,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 10,
+          "covered": 10,
+          "percent": 100
+        },
+        "lines": {
+          "count": 56,
+          "covered": 45,
+          "percent": 80.35714285714286
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 92,
+          "covered": 77,
+          "notcovered": 15,
+          "percent": 83.69565217391305
+        }
+      }
+    },
+    {
+      "path": "05-constant-time/ct_compare.c",
+      "summary": {
+        "branches": {
+          "count": 30,
+          "covered": 28,
+          "notcovered": 2,
+          "percent": 93.33333333333333
+        },
+        "functions": {
+          "count": 5,
+          "covered": 5,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 5,
+          "covered": 5,
+          "percent": 100
+        },
+        "lines": {
+          "count": 30,
+          "covered": 30,
+          "percent": 100
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 49,
+          "covered": 49,
+          "notcovered": 0,
+          "percent": 100
+        }
+      }
+    },
+    {
+      "path": "include/lab_status.h",
+      "summary": {
+        "branches": {
+          "count": 12,
+          "covered": 11,
+          "notcovered": 1,
+          "percent": 91.66666666666666
+        },
+        "functions": {
+          "count": 2,
+          "covered": 2,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 16,
+          "covered": 6,
+          "percent": 37.5
+        },
+        "lines": {
+          "count": 10,
+          "covered": 10,
+          "percent": 100
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 19,
+          "covered": 19,
+          "notcovered": 0,
+          "percent": 100
+        }
+      }
+    }
+  ],
+  "zero_denominator_entries": [
+    {
+      "path": "02-caesar/caesar.h",
+      "summary": {
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 0,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 0,
+          "covered": 0,
+          "percent": 0
+        },
+        "lines": {
+          "count": 0,
+          "covered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    }
+  ],
+  "totals": {
+    "branches": {
+      "count": 216,
+      "covered": 190,
+      "notcovered": 26,
+      "percent": 87.96296296296296
+    },
+    "functions": {
+      "count": 37,
+      "covered": 37,
+      "percent": 100
+    },
+    "instantiations": {
+      "count": 51,
+      "covered": 41,
+      "percent": 80.3921568627451
+    },
+    "lines": {
+      "count": 236,
+      "covered": 223,
+      "percent": 94.49152542372882
+    },
+    "mcdc": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    },
+    "regions": {
+      "count": 364,
+      "covered": 345,
+      "notcovered": 19,
+      "percent": 94.78021978021978
+    }
+  },
+  "definition": "LLVM mapped executable source coverage, not requirements coverage or bug-freedom"
+}

@@ -1,0 +1,2 @@
+build/rosetta/xor-linux.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
+build/rosetta/abi-linux.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped

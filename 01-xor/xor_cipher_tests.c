@@ -1,85 +1,70 @@
-#include <stdio.h>
-#include <string.h>
-
-/* Declare the functions we want to test here.
-    They are implemented in a separate .c file, but we
-    want to use them here, so we declare their signatures. */
-void xor_single(char *text, char key);
-void xor_multi(char *text, const char *key, int key_len);
-char frequency_attack(const char *ciphertext, int len);
-char known_plaintext_attack(char known_plain, char known_cipher);
-
-static int failures = 0;
-
-/* assert_equal: compares two strings.
-    Prints PASS if equal, otherwise prints FAIL and shows expected value.
-    This makes tests automatic instead of manual visual checks. */
-void assert_equal(const char *test_name, const char *expected, const char *got) {
-    if (strcmp(expected, got) == 0) {
-        printf("PASS: %s\n", test_name);
-    } else {
-        printf("FAIL: %s\n", test_name);
-        printf("  Expected: %s\n", expected);
-        printf("  Got:      %s\n", got);
-        failures++;
-    }
-}
-
+#include "xor.h"
+#include "../include/lab_test.h"
 int main(void) {
-     /* --- Test 1: single-byte encrypt then decrypt --- */
-    char msg1[] = "Hello";
-    xor_single(msg1, 10);          /* encrypt */
-     xor_single(msg1, 10);          /* decrypt - same operation reverses it */
-    assert_equal("single-byte round-trip", "Hello", msg1);
-
-     /* --- Test 2: verify known ciphertext ---
-       H (72) XOR 10 = 66, e (101) XOR 10 = 111, ...
-         These values are precomputed, and function must match them. */
-    char msg2[] = "Hello";
-    char expected_cipher[] = {66, 111, 102, 102, 101, '\0'};
-    xor_single(msg2, 10);
-    assert_equal("single-byte known ciphertext", expected_cipher, msg2);
-
-    /* --- Test 3: multi-byte round-trip --- */
-    char msg3[] = "Hello";
-    xor_multi(msg3, "AB", 2);      /* encrypt */
-    xor_multi(msg3, "AB", 2);      /* decrypt */
-    assert_equal("multi-byte round-trip", "Hello", msg3);
-
-     /* --- Test 4: empty string - edge case ---
-         Applying XOR to a length-0 string should change nothing.
-         Function should not crash and should return empty string. */
-    char msg4[] = "";
-    xor_single(msg4, 10);
-    assert_equal("empty string", "", msg4);
-
-    /* --- Test 5: frequency attack ---
-       We use an e-heavy text without spaces so 'e' stays dominant.
-       This keeps the demo aligned with the classic simple assumption. */
-    char long_msg[] = "theenemyneedstobeseeneverywhere";
-    char attack_key = 42;
-    xor_single(long_msg, attack_key);
-
-    char recovered_key = frequency_attack(long_msg, (int)strlen(long_msg));
-    if (recovered_key == attack_key) {
-        printf("PASS: frequency attack recovered key = %d\n", recovered_key);
-    } else {
-        printf("FAIL: frequency attack - expected %d, got %d\n", attack_key, recovered_key);
-        failures++;
+    uint8_t storage[] = {0xa5, 0x00, 0x2a, 0xff, 0x00, 0x5a};
+    const uint8_t original[] = {0xa5, 0x00, 0x2a, 0xff, 0x00, 0x5a};
+    const uint8_t expected[] = {0xa5, 0x2a, 0x00, 0xd5, 0x2a, 0x5a};
+    CHECK("binary encode", xor_apply(storage + 1, 4, 4, 0x2a) == LAB_OK);
+    CHECK("known bytes and guards", memcmp(storage, expected, sizeof(storage)) == 0);
+    CHECK("binary decode through embedded NUL", xor_apply(storage + 1, 4, 4, 0x2a) == LAB_OK);
+    CHECK("roundtrip and guards", memcmp(storage, original, sizeof(storage)) == 0);
+    CHECK("zero NULL", xor_apply(NULL, 0, 0, 12) == LAB_OK);
+    CHECK("positive NULL", xor_apply(NULL, 1, 1, 12) == LAB_INVALID_ARGUMENT);
+    CHECK("capacity rejection", xor_apply(storage, 2, 3, 12) == LAB_CAPACITY_ERROR);
+    CHECK("error unchanged", memcmp(storage, original, sizeof(storage)) == 0);
+    uint8_t key[] = {0x00, 0xff, 0x2a};
+    CHECK("repeat", xor_repeat(storage + 1, 4, 4, key, sizeof(key)) == LAB_OK);
+    CHECK("repeat known vector", storage[1] == 0 && storage[2] == 0xd5 && storage[3] == 0xd5 && storage[4] == 0);
+    CHECK("repeat inverse", xor_repeat(storage + 1, 4, 4, key, sizeof(key)) == LAB_OK);
+    CHECK("repeat restored", memcmp(storage, original, sizeof(storage)) == 0);
+    CHECK("empty key error", xor_repeat(storage, sizeof(storage), sizeof(storage), key, 0) == LAB_EMPTY_KEY);
+    CHECK("empty key at zero data", xor_repeat(NULL, 0, 0, NULL, 0) == LAB_EMPTY_KEY);
+    CHECK("NULL key", xor_repeat(storage, sizeof(storage), 4, NULL, 1) == LAB_INVALID_ARGUMENT);
+    CHECK("NULL data", xor_repeat(NULL, 4, 4, key, sizeof(key)) == LAB_INVALID_ARGUMENT);
+    CHECK("repeat capacity", xor_repeat(storage, 2, 3, key, sizeof(key)) == LAB_CAPACITY_ERROR);
+    CHECK("key overlap", xor_repeat(storage, sizeof(storage), sizeof(storage), storage + 1, 2) == LAB_OVERLAP_ERROR);
+    CHECK("overlap reverse order", xor_repeat(storage + 1, 4, 4, storage, 2) == LAB_OVERLAP_ERROR);
+    CHECK("errors unchanged", memcmp(storage, original, sizeof(storage)) == 0);
+    CHECK("zero repeat valid", xor_repeat(NULL, 0, 0, key, sizeof(key)) == LAB_OK);
+    uint8_t all[256], copy[256];
+    for (size_t i = 0; i < sizeof(all); ++i) all[i] = (uint8_t)i;
+    memcpy(copy, all, sizeof(all));
+    int vectors_ok = 1;
+    for (unsigned k = 0; k < 256; ++k) {
+        if (xor_apply(all, sizeof(all), sizeof(all), (uint8_t)k) != LAB_OK) vectors_ok = 0;
+        for (size_t i = 0; i < sizeof(all); ++i)
+            if (all[i] != (uint8_t)(copy[i] ^ (uint8_t)k)) vectors_ok = 0;
+        if (xor_apply(all, sizeof(all), sizeof(all), (uint8_t)k) != LAB_OK || memcmp(all, copy, sizeof(all)) != 0) vectors_ok = 0;
     }
-
-    /* --- Test 6: known-plaintext attack ---
-       If one plaintext char and cipher char pair is known,
-       single-byte XOR key is directly recoverable. */
-    char plain_char = 'H';
-    char cipher_char = 'H' ^ 10;
-    char kp_key = known_plaintext_attack(plain_char, cipher_char);
-    if (kp_key == 10) {
-        printf("PASS: known-plaintext attack recovered key = %d\n", kp_key);
-    } else {
-        printf("FAIL: known-plaintext attack - expected 10, got %d\n", kp_key);
-        failures++;
-    }
-
-    return failures;
+    CHECK("all 256 byte values and keys", vectors_ok);
+    char text[] = "Hello";
+    xor_single(text, 10); xor_single(text, 10);
+    CHECK("text wrapper", strcmp(text, "Hello") == 0);
+    xor_multi(text, "AB", 2); xor_multi(text, "AB", 2);
+    CHECK("multi wrapper", strcmp(text, "Hello") == 0);
+    xor_multi(text, "", 0); xor_multi(text, NULL, 1); xor_multi(text, "AB", -1);
+    xor_single(NULL, 1); xor_multi(NULL, "A", 1);
+    CHECK("legacy bad key unchanged", strcmp(text, "Hello") == 0);
+    CHECK("known plaintext key", known_plaintext_attack('H', (char)('H' ^ 10)) == 10);
+    char attack[] = "theenemyneedstobeseeneverywhere";
+    xor_single(attack, 42);
+    CHECK("frequency sample", frequency_attack(attack, (int)(sizeof(attack) - 1)) == 42);
+    CHECK("frequency NULL", frequency_attack(NULL, 2) == 0);
+    CHECK("frequency negative", frequency_attack(attack, -1) == 0);
+    volatile char output[4] = {1, 2, 3, 4};
+    xor_constant_time("abcd", "", 0, output, 4);
+    CHECK("legacy empty key no divide by zero", output[0] == 1 && output[3] == 4);
+    xor_constant_time(NULL, "A", 1, output, 4);
+    xor_constant_time("abcd", "A", 1, output, -1);
+    xor_constant_time(NULL, "A", 1, NULL, 0);
+    xor_constant_time("abcd", "A", 1, NULL, 4);
+    CHECK("legacy bad inputs unchanged", output[0] == 1 && output[3] == 4);
+    xor_constant_time("abcd", "A", 1, output, 4);
+    CHECK("legacy explicit length", (uint8_t)output[0] == ((uint8_t)'a' ^ (uint8_t)'A') && (uint8_t)output[3] == ((uint8_t)'d' ^ (uint8_t)'A'));
+    char partial[] = "abcde";
+    xor_constant_time(partial, "X", 1, partial + 1, 4);
+    CHECK("legacy partial overlap rejected", strcmp(partial, "abcde") == 0);
+    xor_constant_time(partial, partial, 1, partial, 4);
+    CHECK("legacy key overlap rejected", strcmp(partial, "abcde") == 0);
+    return lab_test_finish("xor");
 }

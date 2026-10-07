@@ -1,0 +1,599 @@
+{
+  "verified_at_utc": "2026-10-07T17:36:10.782005+00:00",
+  "base_revision": "26f07402e89b48cf08f7c8c78c4a28d8673b9ad7",
+  "modified_source_identification": "Uncommitted implementation at measurement time; use source_sha256, not base revision alone.",
+  "source_sha256": {
+    "01-xor/xor.h": "370cad0cf155bd359a1f16345da629b02143c942caada85a73291304a3eb5ff9",
+    "01-xor/xor_asm_abi.S": "609ad3d82e692e4feb99374e41bf8eb8b907b004b5a075efab3ee06a9355ecf6",
+    "01-xor/xor_asm_bytes.S": "862143e8f08519c78f5f907666976d8ad7d0cca2e92f1662aa2d99679cccdedf",
+    "01-xor/xor_asm_tests.c": "4be7b33786cfe6e8aae6051321c88fa69045191f58f0b3cb0bba1e0d94cb1c71",
+    "01-xor/xor_asm_wrapper.c": "b1477c13260f2864c06470bfd32c46391a59f64e34bc5d1d8e590fafd6074aff",
+    "01-xor/xor_cipher.c": "48f3fa8a48c47ab878dc0dc0b2fb99dda0eab79a011b84390fb3f7edd5bff0a4",
+    "01-xor/xor_cipher_tests.c": "e96b3a1eb8ce8d187a0489105a78b0f8860e6d18108c8b8975eb19bee407e2a4",
+    "02-caesar/caesar.c": "053e9615023f90f6ac2b72831ef01483dedcce6e78f43f9fa2a68069210653c2",
+    "02-caesar/caesar.h": "ddabb140800b4ebaf24ae60614bf9b16db62af4abeedc4f453a359c0f832d516",
+    "02-caesar/caesar_tests.c": "e6976ee52f404d74ed8074833108a653e850371e1713dfe3370b620ba5736107",
+    "03-hash/hash.c": "245425306c430bf8b1671b47c84b4244252fee50430266122436ff562117c7fe",
+    "03-hash/hash.h": "fcb18e3c6b63545b599c30351df19c79200ff54163d4045adf083c450f330ecc",
+    "03-hash/hash_tests.c": "a459f4addd0af83da463a2440bac456145f3d440d60f5234717fa325c263c56d",
+    "05-constant-time/ct_compare.c": "3dfac9b0a07ed5794ce8497fffc312be71e4105d12e092a92cab3b52303a049c",
+    "05-constant-time/ct_compare.h": "1c22c3d5c6a9c731f45a4116507113437332d2ec7803aac3ab5088a0d8af08db",
+    "05-constant-time/ct_compare_tests.c": "4bee013db2dd14481e9a0d22b007c1f590c039af42e984ce161d4c17c31d9652",
+    "include/lab_status.h": "83224f015b4735518aeb31966c0c3edfd73d46e89aad3e55282eeebc313dcb8c",
+    "include/lab_test.h": "121cbaec61e4e7d8aab7abded7e143389f3789e1dc4eb38941403f4e48b6bad4",
+    "bench/lab_bench.c": "ebe08bd190787141bf882018df98b70b43edb54919d6f51e17d271ae69209fe6",
+    "scripts/benchmark_metadata.py": "14650f7320a4e8aecc6f322c02dfb64590cc293f99cc788e2b3bb563ba96c222",
+    "scripts/run_coverage.sh": "5ca76a54a8d056fa5ce23141d4f40cdd7f9bf9bb5545ee9b96bcead7dd0ca801",
+    "scripts/summarize_benchmark.py": "611b81338abc89a9a6cd9a0bcec7049c9f2e3c62edb786b3a64997cc1a09b599",
+    "scripts/summarize_coverage.py": "43065d725095a9a6279a706d5e80c8bd24a7990901ad7e81114843406d77b084",
+    "tests/test_benchmark_cli.sh": "20b5c901b8f88a25a72055f3ec8252d692e2613ed7895c0d74765942b9e64830",
+    "tests/test_benchmark_csv.py": "04bf2f2206aa328a83471719d3475dfa85d15ff7dc1fe13f39e5213037a2f1ca"
+  },
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "arch": "arm64",
+    "cpu": "Apple M2",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin"
+  },
+  "c_correctness": {
+    "suite_count": 4,
+    "check_calls": 112,
+    "per_suite": {
+      "xor": 34,
+      "caesar": 32,
+      "hash": 23,
+      "compare": 23
+    },
+    "normal_exit": 0,
+    "asan_ubsan_exit": 0,
+    "asan_leak_detection": false,
+    "count_definition": "CHECK macro invocations, including aggregate exhaustive loops; not 112 independently enumerated input scenarios."
+  },
+  "benchmark_contracts": {
+    "cli_checks": 17,
+    "python_test_methods": 2,
+    "normal_exit": 0,
+    "sanitizer_exit": 0
+  },
+  "before_fix_probes": {
+    "empty_key": "UBSan division-by-zero, exit 134",
+    "int_min": "UBSan signed-negation overflow, exit 134",
+    "embedded_nul": "String wrapper fails roundtrip, exit 1"
+  },
+  "asm_correctness": {
+    "platform": "Darwin x86-64 under Rosetta on arm64",
+    "vector_combinations": 3072,
+    "check_calls": 13,
+    "exit": 0,
+    "native_linux_executed_locally": false,
+    "linux_elf_cross_assembly": "Both core and ABI shim assembled; compile-only, not a runtime test."
+  },
+  "coverage": {
+    "scope": [
+      "01-xor/xor_cipher.c",
+      "02-caesar/caesar.c",
+      "03-hash/hash.c",
+      "05-constant-time/ct_compare.c",
+      "include/lab_status.h"
+    ],
+    "excludes": [
+      "tests",
+      "benchmarks",
+      "ASM",
+      "04-buffer-overflow"
+    ],
+    "files": [
+      {
+        "path": "01-xor/xor_cipher.c",
+        "summary": {
+          "branches": {
+            "count": 52,
+            "covered": 50,
+            "notcovered": 2,
+            "percent": 96.15384615384616
+          },
+          "functions": {
+            "count": 7,
+            "covered": 7,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 7,
+            "covered": 7,
+            "percent": 100
+          },
+          "lines": {
+            "count": 50,
+            "covered": 50,
+            "percent": 100
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "regions": {
+            "count": 86,
+            "covered": 86,
+            "notcovered": 0,
+            "percent": 100
+          }
+        }
+      },
+      {
+        "path": "02-caesar/caesar.c",
+        "summary": {
+          "branches": {
+            "count": 72,
+            "covered": 64,
+            "notcovered": 8,
+            "percent": 88.88888888888889
+          },
+          "functions": {
+            "count": 13,
+            "covered": 13,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 13,
+            "covered": 13,
+            "percent": 100
+          },
+          "lines": {
+            "count": 90,
+            "covered": 88,
+            "percent": 97.77777777777777
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "regions": {
+            "count": 118,
+            "covered": 114,
+            "notcovered": 4,
+            "percent": 96.61016949152543
+          }
+        }
+      },
+      {
+        "path": "03-hash/hash.c",
+        "summary": {
+          "branches": {
+            "count": 50,
+            "covered": 37,
+            "notcovered": 13,
+            "percent": 74
+          },
+          "functions": {
+            "count": 10,
+            "covered": 10,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 10,
+            "covered": 10,
+            "percent": 100
+          },
+          "lines": {
+            "count": 56,
+            "covered": 45,
+            "percent": 80.35714285714286
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "regions": {
+            "count": 92,
+            "covered": 77,
+            "notcovered": 15,
+            "percent": 83.69565217391305
+          }
+        }
+      },
+      {
+        "path": "05-constant-time/ct_compare.c",
+        "summary": {
+          "branches": {
+            "count": 30,
+            "covered": 28,
+            "notcovered": 2,
+            "percent": 93.33333333333333
+          },
+          "functions": {
+            "count": 5,
+            "covered": 5,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 5,
+            "covered": 5,
+            "percent": 100
+          },
+          "lines": {
+            "count": 30,
+            "covered": 30,
+            "percent": 100
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "regions": {
+            "count": 49,
+            "covered": 49,
+            "notcovered": 0,
+            "percent": 100
+          }
+        }
+      },
+      {
+        "path": "include/lab_status.h",
+        "summary": {
+          "branches": {
+            "count": 12,
+            "covered": 11,
+            "notcovered": 1,
+            "percent": 91.66666666666666
+          },
+          "functions": {
+            "count": 2,
+            "covered": 2,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 16,
+            "covered": 6,
+            "percent": 37.5
+          },
+          "lines": {
+            "count": 10,
+            "covered": 10,
+            "percent": 100
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "regions": {
+            "count": 19,
+            "covered": 19,
+            "notcovered": 0,
+            "percent": 100
+          }
+        }
+      }
+    ],
+    "zero_denominator_entries": [
+      {
+        "path": "02-caesar/caesar.h",
+        "summary": {
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "functions": {
+            "count": 0,
+            "covered": 0,
+            "percent": 0
+          },
+          "instantiations": {
+            "count": 0,
+            "covered": 0,
+            "percent": 0
+          },
+          "lines": {
+            "count": 0,
+            "covered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "regions": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      }
+    ],
+    "totals": {
+      "branches": {
+        "count": 216,
+        "covered": 190,
+        "notcovered": 26,
+        "percent": 87.96296296296296
+      },
+      "functions": {
+        "count": 37,
+        "covered": 37,
+        "percent": 100
+      },
+      "instantiations": {
+        "count": 51,
+        "covered": 41,
+        "percent": 80.3921568627451
+      },
+      "lines": {
+        "count": 236,
+        "covered": 223,
+        "percent": 94.49152542372882
+      },
+      "mcdc": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      },
+      "regions": {
+        "count": 364,
+        "covered": 345,
+        "notcovered": 19,
+        "percent": 94.78021978021978
+      }
+    },
+    "definition": "LLVM mapped executable source coverage, not requirements coverage or bug-freedom"
+  },
+  "benchmark_runs": [
+    {
+      "measured_at_utc": "2026-10-07T17:31:57.227691+00:00",
+      "binary_sha256": "4417150824efd8d5453cf7c3d313b1162f37095e4c586fc5e02ab8009dbbf602",
+      "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+      "compiler_command": "clang",
+      "flags": "-std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fno-lto",
+      "revision": "26f07402e89b48cf08f7c8c78c4a28d8673b9ad7",
+      "working_tree_changed": true,
+      "source_sha256": {
+        "01-xor/xor.h": "370cad0cf155bd359a1f16345da629b02143c942caada85a73291304a3eb5ff9",
+        "01-xor/xor_asm_abi.S": "609ad3d82e692e4feb99374e41bf8eb8b907b004b5a075efab3ee06a9355ecf6",
+        "01-xor/xor_asm_bytes.S": "862143e8f08519c78f5f907666976d8ad7d0cca2e92f1662aa2d99679cccdedf",
+        "01-xor/xor_asm_tests.c": "4be7b33786cfe6e8aae6051321c88fa69045191f58f0b3cb0bba1e0d94cb1c71",
+        "01-xor/xor_asm_wrapper.c": "b1477c13260f2864c06470bfd32c46391a59f64e34bc5d1d8e590fafd6074aff",
+        "01-xor/xor_cipher.c": "48f3fa8a48c47ab878dc0dc0b2fb99dda0eab79a011b84390fb3f7edd5bff0a4",
+        "01-xor/xor_cipher_tests.c": "e96b3a1eb8ce8d187a0489105a78b0f8860e6d18108c8b8975eb19bee407e2a4",
+        "02-caesar/caesar.c": "053e9615023f90f6ac2b72831ef01483dedcce6e78f43f9fa2a68069210653c2",
+        "02-caesar/caesar.h": "ddabb140800b4ebaf24ae60614bf9b16db62af4abeedc4f453a359c0f832d516",
+        "02-caesar/caesar_tests.c": "e6976ee52f404d74ed8074833108a653e850371e1713dfe3370b620ba5736107",
+        "03-hash/hash.c": "245425306c430bf8b1671b47c84b4244252fee50430266122436ff562117c7fe",
+        "03-hash/hash.h": "fcb18e3c6b63545b599c30351df19c79200ff54163d4045adf083c450f330ecc",
+        "03-hash/hash_tests.c": "a459f4addd0af83da463a2440bac456145f3d440d60f5234717fa325c263c56d",
+        "05-constant-time/ct_compare.c": "3dfac9b0a07ed5794ce8497fffc312be71e4105d12e092a92cab3b52303a049c",
+        "05-constant-time/ct_compare.h": "1c22c3d5c6a9c731f45a4116507113437332d2ec7803aac3ab5088a0d8af08db",
+        "05-constant-time/ct_compare_tests.c": "4bee013db2dd14481e9a0d22b007c1f590c039af42e984ce161d4c17c31d9652",
+        "bench/lab_bench.c": "ebe08bd190787141bf882018df98b70b43edb54919d6f51e17d271ae69209fe6",
+        "include/lab_status.h": "83224f015b4735518aeb31966c0c3edfd73d46e89aad3e55282eeebc313dcb8c",
+        "include/lab_test.h": "121cbaec61e4e7d8aab7abded7e143389f3789e1dc4eb38941403f4e48b6bad4",
+        "scripts/benchmark_metadata.py": "14650f7320a4e8aecc6f322c02dfb64590cc293f99cc788e2b3bb563ba96c222",
+        "scripts/run_coverage.sh": "5ca76a54a8d056fa5ce23141d4f40cdd7f9bf9bb5545ee9b96bcead7dd0ca801",
+        "scripts/summarize_benchmark.py": "611b81338abc89a9a6cd9a0bcec7049c9f2e3c62edb786b3a64997cc1a09b599",
+        "scripts/summarize_coverage.py": "43065d725095a9a6279a706d5e80c8bd24a7990901ad7e81114843406d77b084"
+      },
+      "cpu": "Apple M2",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "host_machine": "arm64",
+      "binary_context": {
+        "compiled_arch": "arm64",
+        "runtime_machine": "arm64",
+        "execution": "native"
+      },
+      "execution": "native",
+      "experiment": "compare",
+      "length": 64,
+      "rounds": 2000,
+      "samples": 31,
+      "warmup": 3,
+      "seed": 20261007,
+      "clock": "CLOCK_MONOTONIC",
+      "raw_unit": "nanoseconds per batch",
+      "summary_unit": "nanoseconds per call",
+      "method": "Separate translation units, no LTO, warm-up batches, alternating A/B order, observable result sink; no timing threshold",
+      "limitations": [
+        "wall time includes calls/status checks and compare result-sink stores; XOR checksum is outside the timed region",
+        "no formal constant-time guarantee",
+        "not TSC cycles",
+        "one host environment; no portable speed inference"
+      ]
+    },
+    {
+      "measured_at_utc": "2026-10-07T17:31:59.189145+00:00",
+      "binary_sha256": "9eb97df15e2e80b983aa4930646315884b76728f1d93df98e7fa414cb369f85c",
+      "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+      "compiler_command": "clang",
+      "flags": "-std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fno-lto",
+      "revision": "26f07402e89b48cf08f7c8c78c4a28d8673b9ad7",
+      "working_tree_changed": true,
+      "source_sha256": {
+        "01-xor/xor.h": "370cad0cf155bd359a1f16345da629b02143c942caada85a73291304a3eb5ff9",
+        "01-xor/xor_asm_abi.S": "609ad3d82e692e4feb99374e41bf8eb8b907b004b5a075efab3ee06a9355ecf6",
+        "01-xor/xor_asm_bytes.S": "862143e8f08519c78f5f907666976d8ad7d0cca2e92f1662aa2d99679cccdedf",
+        "01-xor/xor_asm_tests.c": "4be7b33786cfe6e8aae6051321c88fa69045191f58f0b3cb0bba1e0d94cb1c71",
+        "01-xor/xor_asm_wrapper.c": "b1477c13260f2864c06470bfd32c46391a59f64e34bc5d1d8e590fafd6074aff",
+        "01-xor/xor_cipher.c": "48f3fa8a48c47ab878dc0dc0b2fb99dda0eab79a011b84390fb3f7edd5bff0a4",
+        "01-xor/xor_cipher_tests.c": "e96b3a1eb8ce8d187a0489105a78b0f8860e6d18108c8b8975eb19bee407e2a4",
+        "02-caesar/caesar.c": "053e9615023f90f6ac2b72831ef01483dedcce6e78f43f9fa2a68069210653c2",
+        "02-caesar/caesar.h": "ddabb140800b4ebaf24ae60614bf9b16db62af4abeedc4f453a359c0f832d516",
+        "02-caesar/caesar_tests.c": "e6976ee52f404d74ed8074833108a653e850371e1713dfe3370b620ba5736107",
+        "03-hash/hash.c": "245425306c430bf8b1671b47c84b4244252fee50430266122436ff562117c7fe",
+        "03-hash/hash.h": "fcb18e3c6b63545b599c30351df19c79200ff54163d4045adf083c450f330ecc",
+        "03-hash/hash_tests.c": "a459f4addd0af83da463a2440bac456145f3d440d60f5234717fa325c263c56d",
+        "05-constant-time/ct_compare.c": "3dfac9b0a07ed5794ce8497fffc312be71e4105d12e092a92cab3b52303a049c",
+        "05-constant-time/ct_compare.h": "1c22c3d5c6a9c731f45a4116507113437332d2ec7803aac3ab5088a0d8af08db",
+        "05-constant-time/ct_compare_tests.c": "4bee013db2dd14481e9a0d22b007c1f590c039af42e984ce161d4c17c31d9652",
+        "bench/lab_bench.c": "ebe08bd190787141bf882018df98b70b43edb54919d6f51e17d271ae69209fe6",
+        "include/lab_status.h": "83224f015b4735518aeb31966c0c3edfd73d46e89aad3e55282eeebc313dcb8c",
+        "include/lab_test.h": "121cbaec61e4e7d8aab7abded7e143389f3789e1dc4eb38941403f4e48b6bad4",
+        "scripts/benchmark_metadata.py": "14650f7320a4e8aecc6f322c02dfb64590cc293f99cc788e2b3bb563ba96c222",
+        "scripts/run_coverage.sh": "5ca76a54a8d056fa5ce23141d4f40cdd7f9bf9bb5545ee9b96bcead7dd0ca801",
+        "scripts/summarize_benchmark.py": "611b81338abc89a9a6cd9a0bcec7049c9f2e3c62edb786b3a64997cc1a09b599",
+        "scripts/summarize_coverage.py": "43065d725095a9a6279a706d5e80c8bd24a7990901ad7e81114843406d77b084"
+      },
+      "cpu": "Apple M2",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "host_machine": "arm64",
+      "binary_context": {
+        "compiled_arch": "arm64",
+        "runtime_machine": "arm64",
+        "execution": "native"
+      },
+      "execution": "native",
+      "experiment": "compare",
+      "length": 4096,
+      "rounds": 1000,
+      "samples": 31,
+      "warmup": 3,
+      "seed": 20261007,
+      "clock": "CLOCK_MONOTONIC",
+      "raw_unit": "nanoseconds per batch",
+      "summary_unit": "nanoseconds per call",
+      "method": "Separate translation units, no LTO, warm-up batches, alternating A/B order, observable result sink; no timing threshold",
+      "limitations": [
+        "wall time includes calls/status checks and compare result-sink stores; XOR checksum is outside the timed region",
+        "no formal constant-time guarantee",
+        "not TSC cycles",
+        "one host environment; no portable speed inference"
+      ]
+    },
+    {
+      "measured_at_utc": "2026-10-07T17:32:01.245627+00:00",
+      "binary_sha256": "076cb27b4f25ceb824f8a8492d79b4e1118346b6b6fd2c4c1a804383c50cfc03",
+      "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+      "compiler_command": "clang",
+      "flags": "-std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fno-lto",
+      "revision": "26f07402e89b48cf08f7c8c78c4a28d8673b9ad7",
+      "working_tree_changed": true,
+      "source_sha256": {
+        "01-xor/xor.h": "370cad0cf155bd359a1f16345da629b02143c942caada85a73291304a3eb5ff9",
+        "01-xor/xor_asm_abi.S": "609ad3d82e692e4feb99374e41bf8eb8b907b004b5a075efab3ee06a9355ecf6",
+        "01-xor/xor_asm_bytes.S": "862143e8f08519c78f5f907666976d8ad7d0cca2e92f1662aa2d99679cccdedf",
+        "01-xor/xor_asm_tests.c": "4be7b33786cfe6e8aae6051321c88fa69045191f58f0b3cb0bba1e0d94cb1c71",
+        "01-xor/xor_asm_wrapper.c": "b1477c13260f2864c06470bfd32c46391a59f64e34bc5d1d8e590fafd6074aff",
+        "01-xor/xor_cipher.c": "48f3fa8a48c47ab878dc0dc0b2fb99dda0eab79a011b84390fb3f7edd5bff0a4",
+        "01-xor/xor_cipher_tests.c": "e96b3a1eb8ce8d187a0489105a78b0f8860e6d18108c8b8975eb19bee407e2a4",
+        "02-caesar/caesar.c": "053e9615023f90f6ac2b72831ef01483dedcce6e78f43f9fa2a68069210653c2",
+        "02-caesar/caesar.h": "ddabb140800b4ebaf24ae60614bf9b16db62af4abeedc4f453a359c0f832d516",
+        "02-caesar/caesar_tests.c": "e6976ee52f404d74ed8074833108a653e850371e1713dfe3370b620ba5736107",
+        "03-hash/hash.c": "245425306c430bf8b1671b47c84b4244252fee50430266122436ff562117c7fe",
+        "03-hash/hash.h": "fcb18e3c6b63545b599c30351df19c79200ff54163d4045adf083c450f330ecc",
+        "03-hash/hash_tests.c": "a459f4addd0af83da463a2440bac456145f3d440d60f5234717fa325c263c56d",
+        "05-constant-time/ct_compare.c": "3dfac9b0a07ed5794ce8497fffc312be71e4105d12e092a92cab3b52303a049c",
+        "05-constant-time/ct_compare.h": "1c22c3d5c6a9c731f45a4116507113437332d2ec7803aac3ab5088a0d8af08db",
+        "05-constant-time/ct_compare_tests.c": "4bee013db2dd14481e9a0d22b007c1f590c039af42e984ce161d4c17c31d9652",
+        "bench/lab_bench.c": "ebe08bd190787141bf882018df98b70b43edb54919d6f51e17d271ae69209fe6",
+        "include/lab_status.h": "83224f015b4735518aeb31966c0c3edfd73d46e89aad3e55282eeebc313dcb8c",
+        "include/lab_test.h": "121cbaec61e4e7d8aab7abded7e143389f3789e1dc4eb38941403f4e48b6bad4",
+        "scripts/benchmark_metadata.py": "14650f7320a4e8aecc6f322c02dfb64590cc293f99cc788e2b3bb563ba96c222",
+        "scripts/run_coverage.sh": "5ca76a54a8d056fa5ce23141d4f40cdd7f9bf9bb5545ee9b96bcead7dd0ca801",
+        "scripts/summarize_benchmark.py": "611b81338abc89a9a6cd9a0bcec7049c9f2e3c62edb786b3a64997cc1a09b599",
+        "scripts/summarize_coverage.py": "43065d725095a9a6279a706d5e80c8bd24a7990901ad7e81114843406d77b084"
+      },
+      "cpu": "Apple M2",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "host_machine": "arm64",
+      "binary_context": {
+        "compiled_arch": "arm64",
+        "runtime_machine": "arm64",
+        "execution": "native"
+      },
+      "execution": "native",
+      "experiment": "xor-c",
+      "length": 64,
+      "rounds": 2000,
+      "samples": 31,
+      "warmup": 3,
+      "seed": 20261007,
+      "clock": "CLOCK_MONOTONIC",
+      "raw_unit": "nanoseconds per batch",
+      "summary_unit": "nanoseconds per call",
+      "method": "Separate translation units, no LTO, warm-up batches, alternating A/B order, observable result sink; no timing threshold",
+      "limitations": [
+        "wall time includes calls/status checks and compare result-sink stores; XOR checksum is outside the timed region",
+        "no formal constant-time guarantee",
+        "not TSC cycles",
+        "one host environment; no portable speed inference"
+      ]
+    },
+    {
+      "measured_at_utc": "2026-10-07T17:32:03.182112+00:00",
+      "binary_sha256": "5322997e57be8702b0646c8b0951dac671e434fd22c1df4156c4e1d6f6548486",
+      "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+      "compiler_command": "clang",
+      "flags": "-std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fno-lto",
+      "revision": "26f07402e89b48cf08f7c8c78c4a28d8673b9ad7",
+      "working_tree_changed": true,
+      "source_sha256": {
+        "01-xor/xor.h": "370cad0cf155bd359a1f16345da629b02143c942caada85a73291304a3eb5ff9",
+        "01-xor/xor_asm_abi.S": "609ad3d82e692e4feb99374e41bf8eb8b907b004b5a075efab3ee06a9355ecf6",
+        "01-xor/xor_asm_bytes.S": "862143e8f08519c78f5f907666976d8ad7d0cca2e92f1662aa2d99679cccdedf",
+        "01-xor/xor_asm_tests.c": "4be7b33786cfe6e8aae6051321c88fa69045191f58f0b3cb0bba1e0d94cb1c71",
+        "01-xor/xor_asm_wrapper.c": "b1477c13260f2864c06470bfd32c46391a59f64e34bc5d1d8e590fafd6074aff",
+        "01-xor/xor_cipher.c": "48f3fa8a48c47ab878dc0dc0b2fb99dda0eab79a011b84390fb3f7edd5bff0a4",
+        "01-xor/xor_cipher_tests.c": "e96b3a1eb8ce8d187a0489105a78b0f8860e6d18108c8b8975eb19bee407e2a4",
+        "02-caesar/caesar.c": "053e9615023f90f6ac2b72831ef01483dedcce6e78f43f9fa2a68069210653c2",
+        "02-caesar/caesar.h": "ddabb140800b4ebaf24ae60614bf9b16db62af4abeedc4f453a359c0f832d516",
+        "02-caesar/caesar_tests.c": "e6976ee52f404d74ed8074833108a653e850371e1713dfe3370b620ba5736107",
+        "03-hash/hash.c": "245425306c430bf8b1671b47c84b4244252fee50430266122436ff562117c7fe",
+        "03-hash/hash.h": "fcb18e3c6b63545b599c30351df19c79200ff54163d4045adf083c450f330ecc",
+        "03-hash/hash_tests.c": "a459f4addd0af83da463a2440bac456145f3d440d60f5234717fa325c263c56d",
+        "05-constant-time/ct_compare.c": "3dfac9b0a07ed5794ce8497fffc312be71e4105d12e092a92cab3b52303a049c",
+        "05-constant-time/ct_compare.h": "1c22c3d5c6a9c731f45a4116507113437332d2ec7803aac3ab5088a0d8af08db",
+        "05-constant-time/ct_compare_tests.c": "4bee013db2dd14481e9a0d22b007c1f590c039af42e984ce161d4c17c31d9652",
+        "bench/lab_bench.c": "ebe08bd190787141bf882018df98b70b43edb54919d6f51e17d271ae69209fe6",
+        "include/lab_status.h": "83224f015b4735518aeb31966c0c3edfd73d46e89aad3e55282eeebc313dcb8c",
+        "include/lab_test.h": "121cbaec61e4e7d8aab7abded7e143389f3789e1dc4eb38941403f4e48b6bad4",
+        "scripts/benchmark_metadata.py": "14650f7320a4e8aecc6f322c02dfb64590cc293f99cc788e2b3bb563ba96c222",
+        "scripts/run_coverage.sh": "5ca76a54a8d056fa5ce23141d4f40cdd7f9bf9bb5545ee9b96bcead7dd0ca801",
+        "scripts/summarize_benchmark.py": "611b81338abc89a9a6cd9a0bcec7049c9f2e3c62edb786b3a64997cc1a09b599",
+        "scripts/summarize_coverage.py": "43065d725095a9a6279a706d5e80c8bd24a7990901ad7e81114843406d77b084"
+      },
+      "cpu": "Apple M2",
+      "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "host_machine": "arm64",
+      "binary_context": {
+        "compiled_arch": "arm64",
+        "runtime_machine": "arm64",
+        "execution": "native"
+      },
+      "execution": "native",
+      "experiment": "xor-c",
+      "length": 4096,
+      "rounds": 1000,
+      "samples": 31,
+      "warmup": 3,
+      "seed": 20261007,
+      "clock": "CLOCK_MONOTONIC",
+      "raw_unit": "nanoseconds per batch",
+      "summary_unit": "nanoseconds per call",
+      "method": "Separate translation units, no LTO, warm-up batches, alternating A/B order, observable result sink; no timing threshold",
+      "limitations": [
+        "wall time includes calls/status checks and compare result-sink stores; XOR checksum is outside the timed region",
+        "no formal constant-time guarantee",
+        "not TSC cycles",
+        "one host environment; no portable speed inference"
+      ]
+    }
+  ],
+  "native_x86_asm_performance_measured_locally": false,
+  "formal_constant_time_verified": false,
+  "pending_external_validation": [
+    "Actual GCC/Clang native Linux x86-64 CI correctness",
+    "Actual native Linux C/ASM benchmark artifact after correctness"
+  ],
+  "original_repository_modified": false
+}

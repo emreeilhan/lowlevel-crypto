@@ -1,60 +1,55 @@
-#include <stdio.h>
 #include <string.h>
-
-void xor_single(char *text , char key){
-    int len = strlen(text);
-    for(int i = 0; i < len; i++){
-        text[i] = text[i] ^ key;
+#include "xor.h"
+lab_status xor_apply(uint8_t *data, size_t capacity, size_t length, uint8_t key) {
+    lab_status status = lab_validate_mutable(data, capacity, length);
+    if (status != LAB_OK) return status;
+    for (size_t i = 0; i < length; ++i) data[i] ^= key;
+    return LAB_OK;
+}
+lab_status xor_repeat(uint8_t *data, size_t capacity, size_t length,
+                      const uint8_t *key, size_t key_length) {
+    lab_status status = lab_validate_mutable(data, capacity, length);
+    if (status != LAB_OK) return status;
+    if (key_length == 0) return LAB_EMPTY_KEY;
+    if (key == NULL) return LAB_INVALID_ARGUMENT;
+    if (lab_ranges_overlap(data, length, key, key_length)) return LAB_OVERLAP_ERROR;
+    for (size_t i = 0; i < length; ++i) data[i] ^= key[i % key_length];
+    return LAB_OK;
+}
+void xor_single(char *text, char key) {
+    if (text != NULL) {
+        size_t length = strlen(text);
+        (void)xor_apply((uint8_t *)text, length, length, (uint8_t)key);
     }
 }
-
-void xor_multi(char *text, const char *key, int key_len){
-    int len = strlen(text);
-    for(int i = 0; i < len ; i++){
-        text[i] = text[i] ^ key[i % key_len];
+void xor_multi(char *text, const char *key, int key_len) {
+    if (text != NULL && key != NULL && key_len > 0) {
+        size_t length = strlen(text);
+        (void)xor_repeat((uint8_t *)text, length, length,
+                         (const uint8_t *)key, (size_t)key_len);
     }
 }
-
-/* frequency_attack: count ciphertext bytes, pick the most frequent one,
-   then assume it came from 'e' (most common in English) to recover key.
-   This works as a simple demo only against single-byte XOR. */
 char frequency_attack(const char *ciphertext, int len) {
-    int freq[256] = {0};
-
-    for (int i = 0; i < len; i++) {
-        freq[(unsigned char)ciphertext[i]]++;
-    }
-
-    int max = 0;
-    unsigned char most_frequent = 0;
-    for (int i = 0; i < 256; i++) {
-        if (freq[i] > max) {
-            max = freq[i];
-            most_frequent = (unsigned char)i;
-        }
-    }
-
-    return (char)(most_frequent ^ 'e');
+    size_t frequencies[256] = {0};
+    uint8_t most_frequent = 0;
+    if (len <= 0 || ciphertext == NULL) return 0;
+    for (size_t i = 0; i < (size_t)len; ++i) ++frequencies[(uint8_t)ciphertext[i]];
+    for (size_t i = 1; i < 256; ++i)
+        if (frequencies[i] > frequencies[most_frequent]) most_frequent = (uint8_t)i;
+    return (char)(most_frequent ^ (uint8_t)'e');
 }
-
-/* known_plaintext_attack: if one plaintext byte and its ciphertext byte
-   are known, key is recovered in one XOR step for single-byte XOR. */
 char known_plaintext_attack(char known_plain, char known_cipher) {
-    return (char)(known_plain ^ known_cipher);
+    return (char)((uint8_t)known_plain ^ (uint8_t)known_cipher);
 }
-
-/* Timing-stable XOR attempt.
-   volatile: keeps the output writes visible to the compiler.
-   No branch: input byte values do not choose different code paths.
-
-   This is still educational code, not a formal constant-time guarantee.
-   Use xor_timing_bench.c to measure whether the implementation shows obvious
-   input-dependent timing differences on the current compiler and machine. */
-void xor_constant_time(const char *plaintext, const char *key,
-                        int key_len, volatile char *out, int len) {
-    for (int i = 0; i < len; i++) {
-        /* No branch here - only pure arithmetic.
-           key[i % key_len]: key wrap-around with same cost per iteration. */
-        out[i] = (volatile char)(plaintext[i] ^ key[i % key_len]);
-    }
+/* Compatibility experiment only: volatile stores are not a timing guarantee. */
+void xor_constant_time(const char *plaintext, const char *key, int key_len,
+                       volatile char *out, int len) {
+    if (len < 0 || key_len <= 0 || key == NULL) return;
+    if (len == 0) return;
+    if (plaintext == NULL || out == NULL) return;
+    if (lab_ranges_overlap((const void *)out, (size_t)len, key, (size_t)key_len)) return;
+    if ((const void *)out != (const void *)plaintext &&
+        lab_ranges_overlap((const void *)out, (size_t)len, plaintext, (size_t)len)) return;
+    for (size_t i = 0; i < (size_t)len; ++i)
+        out[i] = (char)((uint8_t)plaintext[i] ^ (uint8_t)key[i % (size_t)key_len]);
 }

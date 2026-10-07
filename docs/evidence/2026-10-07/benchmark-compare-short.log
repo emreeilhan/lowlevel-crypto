@@ -1,0 +1,3 @@
+mkdir -p build/benchmark/compare-short/bin
+clang -std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fno-lto bench/lab_bench.c 01-xor/xor_cipher.c 05-constant-time/ct_compare.c  -o build/benchmark/compare-short/bin/lab_bench
+Raw CSV, environment, distributions and generated code: build/benchmark/compare-short

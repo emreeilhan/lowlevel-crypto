@@ -1,0 +1,32 @@
+[
+  {
+    "experiment": "xor-c",
+    "condition": "ff",
+    "algorithm": "c",
+    "length": 4096,
+    "rounds": 1000,
+    "seed": 20261007,
+    "samples": 31,
+    "unit": "nanoseconds_per_call",
+    "min": 45.0,
+    "p10": 46.0,
+    "median": 47.0,
+    "p90": 48.0,
+    "max": 58.0
+  },
+  {
+    "experiment": "xor-c",
+    "condition": "zeros",
+    "algorithm": "c",
+    "length": 4096,
+    "rounds": 1000,
+    "seed": 20261007,
+    "samples": 31,
+    "unit": "nanoseconds_per_call",
+    "min": 45.0,
+    "p10": 46.0,
+    "median": 47.0,
+    "p90": 51.0,
+    "max": 63.0
+  }
+]

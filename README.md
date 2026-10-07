@@ -1,82 +1,94 @@
 # lowlevel-crypto
 
-Handwritten implementations of cryptographic primitives in C and x86 Assembly — built to learn, not to use in production.
+Educational C byte-buffer exercises, a small x86-64 XOR routine, and reproducible
+measurement experiments. XOR and Caesar are toy ciphers; djb2 is a
+noncryptographic table hash. This is not a production encryption,
+password-storage, MAC or secret-comparison library.
 
-## About
+## Current modules
 
-This repository is a learning project focused on understanding how low-level cryptographic ideas work by building them manually in C and x86 assembly. The goal is to explore the mechanics directly, without relying on external libraries, and to build intuition for how security-related logic behaves closer to the machine.
+- `01-xor/`: checked in-place XOR/repeating-key byte APIs, text compatibility
+  wrappers, and length-based `xor_asm_bytes.S` for Darwin and Linux x86-64.
+- `02-caesar/`: ASCII byte encode/decode for every `int` shift, including
+  `INT_MIN`; bounded brute-force and frequency-correlation demos.
+- `03-hash/`: unsigned 32-bit djb2/classic-XOR variants and checked bucket
+  placement; zero buckets is an error distinct from bucket zero.
+- `05-constant-time/`: checked equality results separated from errors. Full-scan
+  C accumulates all differences without content-dependent early exit; generated
+  code/timing still needs target-specific analysis. The legacy function name
+  `constant_time_compare` is retained for compatibility, not a guarantee.
+- `04-buffer-overflow/`: intentionally vulnerable historical stack exercise,
+  excluded from normal tests, sanitizers, coverage and benchmark runs.
 
-## What's Inside
+Start with [API contracts](docs/api-contracts.md). Length is explicit; pointers
+and capacity values cannot prove the real allocation size. Invalid checked calls
+leave data/results unchanged. Text XOR wrappers are not binary-safe: preserve
+length and use the byte API when ciphertext contains NUL.
 
-- `01-xor/` — XOR cipher in C, plus an x86-64 assembly reimplementation of the encrypt loop and an `rdtsc` cycle comparison.
-- `02-caesar/` — Caesar cipher in C: encode/decode, brute-force, and letter-frequency correlation cracking (a dot product against English frequencies — not chi-squared or index of coincidence; see `devlog/week2.md` for why I switched).
-- `03-hash/` — handwritten `djb2` hash in C, with a bucket and collision demo.
-- `04-buffer-overflow/` — a deliberately vulnerable C program (`vuln.c`) plus a full exploit-and-defend walkthrough in [its README](04-buffer-overflow/README.md): find the offset, hijack the return address, then break the exploit with a canary, ASLR, and NX one at a time.
-- `05-constant-time/` — early-exit vs constant-time byte comparison, with a timing-leak demo: the same correct answer, but one version leaks a secret through its runtime.
+## Build and correctness
 
-Only the XOR module has an assembly port; see [Scope notes](#scope-notes) below.
-
-## Reviewing this in 3 minutes
-
-If you are screening this quickly, here is the fast path:
-
-1. **Read two files.** `04-buffer-overflow/vuln.c` (the stack overflow) and `05-constant-time/ct_compare.c` (timing side channel) are the two that map most directly to low-level and embedded security work. Each has a short README next to it.
-2. **Run the suites:**
-   ```bash
-   ./run_tests.sh
-   ```
-   Expect every check to print `PASS:`, the script to end with `All C suites passed.`, and the exit code to be `0`. A single failing assertion makes that suite return nonzero and aborts the run.
-3. **Check CI.** [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the same suites on native x86-64 Linux under `-fsanitize=address,undefined` on every push, so memory and undefined-behavior bugs would show up there.
-4. **Read one devlog.** `devlog/week4.md` is the buffer-overflow week — the 24-byte offset, the control-flow hijack, and what each mitigation defeats.
-
-Everything else (XOR, Caesar, djb2) follows the same "build the primitive, then break it" pattern, documented week by week in [`/devlog`](./devlog).
-
-## Goals
-
-- Learn C from scratch through hands-on implementation.
-- Understand x86 assembly by writing and comparing low-level equivalents.
-- Connect cryptography and systems theory to real security concepts.
-
-## Scope notes
-
-Only the XOR module has an x86-64 assembly reimplementation. The Caesar and djb2 assembly ports (tracked as PER-8 and a sibling task) were **deliberately deferred**: once the XOR loop had made the calling convention and register-level mechanics concrete, repeating the exercise for two more ciphers added little new learning for the time it would have cost. The empty placeholder `.s` files were removed so the tree reflects what actually exists rather than what was once planned.
-
-## Tests & CI
-
-```bash
+```sh
 ./run_tests.sh
+make sanitize CC=clang
+make coverage CC=clang
+make asm-test CC=clang            # native x86-64 host
 ```
 
-`run_tests.sh` builds and runs the C test suites for XOR, Caesar, and djb2. Each suite's `main()` returns its failure count, so a single failing assertion fails the whole run. On every push and pull request, [GitHub Actions](.github/workflows/ci.yml) runs the same suites on a **native x86-64 Linux** runner under `-fsanitize=address,undefined`, so memory errors and undefined behavior surface automatically — a deliberate choice for a repository whose entire subject is low-level memory behavior.
+C99, Make, GCC or Clang, and Python 3 (standard library) are used. Tests compile
+with `-Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror`.
+Timing is separate from correctness: no timing threshold gates a test. Use a
+separate `BUILD_DIR` when changing compiler flags or target architecture.
 
-The XOR assembly test and benchmark are macOS-specific (the symbol uses the Darwin leading-underscore convention) and run separately:
+On Apple Silicon, set `SDKROOT=$(xcrun --show-sdk-path)` if needed. LeakSanitizer
+is unsupported by the local macOS runtime; the recorded sanitizer run uses
+`ASAN_OPTIONS=abort_on_error=1:detect_leaks=0`. Linux CI enables leak detection.
+Rosetta correctness is a separate target:
 
-```bash
-clang -arch x86_64 -Wall -Wextra -O2 01-xor/xor_cipher.c 01-xor/xor_asm.s 01-xor/xor_asm_tests.c -o /tmp/xor_asm_tests
-arch -x86_64 /tmp/xor_asm_tests
+```sh
+SDKROOT=$(xcrun --show-sdk-path) make asm-test CC=clang \
+  CFLAGS='-std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -arch x86_64' \
+  BUILD_DIR=build/rosetta RUNNER='arch -x86_64'
 ```
 
-## Benchmarks
+The [CI workflow](.github/workflows/ci.yml) runs main pushes and pull requests:
+GCC/Clang C tests, ASan/UBSan, native Linux x86-64 ASM equivalence/ABI/page guards,
+LLVM source coverage, then an informational native C/ASM benchmark. Configured
+jobs are not evidence of a passing run: inspect/download the actual artifacts.
+C sanitizers do not fully instrument handwritten assembly.
 
-Two measurements live here, and **neither is a wall-clock speed claim**:
+## Measurement
 
-- `xor_timing_bench.c` is a smoke test for obvious input-dependent timing drift — not a formal constant-time proof.
-- `xor_asm_tests.c` reports 101 serialized `rdtsc` samples (median/min/avg/max cycles) for the C and assembly XOR loops. These were taken from an `x86_64` build running under **Rosetta 2 translation on an arm64 Mac**, so the absolute cycle counts are inflated by emulation and the assembly path looks far slower than it would run natively. Read it as a register- and instruction-level behavior comparison, not as "C is N× faster than assembly." A native x86-64 measurement is the right way to make any performance claim — which is the same reason CI runs on a native x86-64 Linux runner.
+```sh
+CC=clang EXPERIMENT=compare LENGTH=64 ./run_benchmarks.sh
+CC=clang EXPERIMENT=xor-c LENGTH=4096 BENCH_OUT=build/xor-c ./run_benchmarks.sh
+# Native x86-64 only; the runner first runs C and ASM correctness:
+CC=clang EXPERIMENT=xor-asm BENCH_OUT=build/native-asm ./run_benchmarks.sh
+```
 
-## Stack
+Each run retains raw CSV, median/min/p10/p90/max distributions, seed,
+warm-up/repetition counts, compiler/version/flags, source hashes, revision and
+binary-reported native/translated context. The clock is `CLOCK_MONOTONIC`, in
+nanoseconds, not TSC cycles. [Measurement method](docs/measurement-method.md)
+explains the workload, optimizer checks, and limits. ASM performance is refused
+under Rosetta/unknown translation; C measurements may be translated but must
+retain that label. No portable speed percentage or formal constant-time claim
+is inferred from these experiments.
 
-- Language: C (C99), x86-64 Assembly (AT&T syntax)
-- Toolchain: gcc, as, gdb
-- Platform: macOS
+[Recorded 7 October 2026 verification](docs/evidence/2026-10-07/README.md) includes
+before-fix failures, current C checks, macOS sanitizer/coverage data, Rosetta
+correctness and native arm64 C measurements. Native Linux execution and ASM
+performance await the actual CI run; cross-assembling an ELF object is not a
+Linux runtime test.
 
-## Devlog
+## Historical notes
 
-The [`/devlog`](./devlog) folder contains four weekly notes documenting what was learned, what was built, and what came up during the process.
-
-## Warning
-
-This code is for educational purposes only. Do not use in production.
+The four notes in `devlog/` describe the earlier string-based implementation and
+old timing demonstrations. Their commands/counts/stack offsets are historical,
+not current API contracts or portable security guarantees. For a `strcpy` into
+`char buf[16]`, only 15 characters plus NUL fit; stack layout and mitigation
+behavior must be checked against one particular build. The deliberate vulnerable
+source remains unchanged.
 
 ## Author
 
-Emre İlhan - [github.com/emreeilhan](https://github.com/emreeilhan)
+Emre İlhan — [github.com/emreeilhan](https://github.com/emreeilhan)

@@ -1,112 +1,93 @@
-#include <stdio.h>
 #include <string.h>
 #include "caesar.h"
-
-void caesar_encode(char *text, int shift) {
-    int len = (int)strlen(text);
-
-    for (int i = 0; i < len; i++) {
-        char c = text[i];
-        char base;
-
-        if (c >= 'A' && c <= 'Z') {
-            base = 'A';
-        } else if (c >= 'a' && c <= 'z') {
-            base = 'a';
-        } else {
-            continue; /* non-alpha: spaces, digits, punctuation stay untouched */
-        }
-
-        /* Formula: ((c - base + shift % 26 + 26) % 26) + base
-           - (c - base)       maps the letter to 0-25
-           - + shift % 26     applies the shift, still possibly negative
-           - + 26             ensures the value is positive before the final mod;
-                              without this, C's % can return a negative remainder
-                              when shift is negative (e.g. shift=-3 on 'a' gives -3,
-                              and -3 % 26 == -3 in C99, not 23 like we want)
-           - final % 26       wraps values >= 26 back into 0-25
-           - + base           maps back to the correct ASCII letter */
-        text[i] = (char)(((c - base + shift % 26 + 26) % 26) + base);
+static int normalized_shift(int shift) {
+    int remainder = shift % 26;
+    return remainder < 0 ? remainder + 26 : remainder;
+}
+static uint8_t shifted_byte(uint8_t c, int shift) {
+    int base;
+    if (c >= (uint8_t)'A' && c <= (uint8_t)'Z') base = 'A';
+    else if (c >= (uint8_t)'a' && c <= (uint8_t)'z') base = 'a';
+    else return c;
+    return (uint8_t)(((int)c - base + shift) % 26 + base);
+}
+lab_status caesar_encode_bytes(uint8_t *data, size_t capacity, size_t length, int shift) {
+    lab_status status = lab_validate_mutable(data, capacity, length);
+    if (status != LAB_OK) return status;
+    int normalized = normalized_shift(shift);
+    for (size_t i = 0; i < length; ++i) data[i] = shifted_byte(data[i], normalized);
+    return LAB_OK;
+}
+lab_status caesar_decode_bytes(uint8_t *data, size_t capacity, size_t length, int shift) {
+    /* Normalize before negation: -INT_MIN is never evaluated. */
+    return caesar_encode_bytes(data, capacity, length, -normalized_shift(shift));
+}
+static lab_status validate_demo(const uint8_t *data, size_t length) {
+    if (length > CAESAR_DEMO_MAX) return LAB_LIMIT_ERROR;
+    if (length != 0 && data == NULL) return LAB_INVALID_ARGUMENT;
+    return LAB_OK;
+}
+lab_status caesar_brute_force_bytes(const uint8_t *data, size_t length, FILE *stream) {
+    lab_status status = validate_demo(data, length);
+    if (status != LAB_OK) return status;
+    if (stream == NULL) return LAB_INVALID_ARGUMENT;
+    uint8_t buffer[CAESAR_DEMO_MAX];
+    for (int shift = 1; shift <= 25; ++shift) {
+        for (size_t i = 0; i < length; ++i) buffer[i] = shifted_byte(data[i], 26 - shift);
+        if (fprintf(stream, "shift %2d: ", shift) < 0 ||
+            fwrite(buffer, 1, length, stream) != length || fputc('\n', stream) == EOF)
+            return LAB_IO_ERROR;
     }
+    return LAB_OK;
 }
-
-void caesar_decode(char *text, int shift) {
-    caesar_encode(text, -shift);
-}
-
-/* 13+13=26, full rotation, so encode and decode are the same operation */
-void caesar_rot13(char *text) {
-    caesar_encode(text, 13);
-}
-
-void caesar_brute_force(const char *ciphertext) {
-    int len = (int)strlen(ciphertext);
-    char buf[len + 1];
-
-    printf("=== Brute Force (all 25 shifts) ===\n");
-    for (int shift = 1; shift <= 25; shift++) {
-        /* copy ciphertext into a mutable buffer for each attempt */
-        memcpy(buf, ciphertext, len + 1);
-        caesar_decode(buf, shift);
-        printf("shift %2d: %s\n", shift, buf);
-    }
-}
-
-/* try all 26 shifts, score each by correlating its letter frequencies with
-   expected English frequencies (a dot product). the correct shift lines the
-   distributions up and produces the highest score. this is frequency
-   correlation, not chi-squared and not index of coincidence. */
-int caesar_crack_freq(const char *ciphertext) {
-    /* expected English letter frequencies, a-z */
+lab_status caesar_crack_freq_bytes(const uint8_t *data, size_t length, int *shift) {
     static const double english[26] = {
-        0.0817, 0.0149, 0.0278, 0.0425, 0.1270, 0.0223, 0.0202, 0.0609,
-        0.0697, 0.0015, 0.0077, 0.0402, 0.0241, 0.0675, 0.0751, 0.0193,
-        0.0010, 0.0599, 0.0633, 0.0906, 0.0276, 0.0098, 0.0236, 0.0015,
-        0.0197, 0.0007
+        .0817,.0149,.0278,.0425,.1270,.0223,.0202,.0609,.0697,.0015,.0077,.0402,.0241,
+        .0675,.0751,.0193,.0010,.0599,.0633,.0906,.0276,.0098,.0236,.0015,.0197,.0007
     };
-
-    int len = (int)strlen(ciphertext);
-
-    /* only alpha chars matter for scoring */
-    int alpha_len = 0;
-    for (int i = 0; i < len; i++) {
-        char c = ciphertext[i];
-        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
-            alpha_len++;
-        }
-    }
-
-    if (alpha_len == 0) return 0;
-
+    lab_status status = validate_demo(data, length);
+    if (status != LAB_OK) return status;
+    if (shift == NULL) return LAB_INVALID_ARGUMENT;
+    if (lab_ranges_overlap(shift, sizeof(*shift), data, length)) return LAB_OVERLAP_ERROR;
     double best_score = -1.0;
     int best_shift = 0;
-
-    char buf[len + 1];
-
-    for (int shift = 0; shift <= 25; shift++) {
-        memcpy(buf, ciphertext, len + 1);
-        caesar_decode(buf, shift);
-
-        /* count letter frequency in the decoded candidate */
-        int freq[26] = {0};
-        for (int i = 0; i < len; i++) {
-            char c = buf[i];
-            if (c >= 'A' && c <= 'Z') freq[c - 'A']++;
-            else if (c >= 'a' && c <= 'z') freq[c - 'a']++;
+    for (int candidate = 0; candidate < 26; ++candidate) {
+        size_t frequencies[26] = {0}, total = 0;
+        for (size_t i = 0; i < length; ++i) {
+            uint8_t c = shifted_byte(data[i], (26 - candidate) % 26);
+            if (c >= (uint8_t)'A' && c <= (uint8_t)'Z') { ++frequencies[c - (uint8_t)'A']; ++total; }
+            else if (c >= (uint8_t)'a' && c <= (uint8_t)'z') { ++frequencies[c - (uint8_t)'a']; ++total; }
         }
-
-        /* dot product of observed vs expected frequencies */
         double score = 0.0;
-        for (int j = 0; j < 26; j++) {
-            score += ((double)freq[j] / (double)alpha_len) * english[j];
-        }
-
-        /* keep the best match so far */
-        if (score > best_score) {
-            best_score = score;
-            best_shift = shift;
-        }
+        if (total != 0)
+            for (size_t i = 0; i < 26; ++i) score += (double)frequencies[i] / (double)total * english[i];
+        if (score > best_score) { best_score = score; best_shift = candidate; }
     }
-
-    return best_shift;
+    *shift = best_shift;
+    return LAB_OK;
+}
+void caesar_encode(char *text, int shift) {
+    if (text != NULL) { size_t n = strlen(text); (void)caesar_encode_bytes((uint8_t *)text, n, n, shift); }
+}
+void caesar_decode(char *text, int shift) {
+    if (text != NULL) { size_t n = strlen(text); (void)caesar_decode_bytes((uint8_t *)text, n, n, shift); }
+}
+void caesar_rot13(char *text) { caesar_encode(text, 13); }
+static lab_status demo_text_length(const char *text, size_t *length) {
+    if (text == NULL) return LAB_INVALID_ARGUMENT;
+    for (size_t i = 0; i <= CAESAR_DEMO_MAX; ++i)
+        if (text[i] == '\0') { *length = i; return LAB_OK; }
+    return LAB_LIMIT_ERROR;
+}
+void caesar_brute_force(const char *ciphertext) {
+    size_t length;
+    if (demo_text_length(ciphertext, &length) == LAB_OK)
+        (void)caesar_brute_force_bytes((const uint8_t *)ciphertext, length, stdout);
+}
+int caesar_crack_freq(const char *ciphertext) {
+    size_t length;
+    int shift = -1;
+    if (demo_text_length(ciphertext, &length) == LAB_OK)
+        (void)caesar_crack_freq_bytes((const uint8_t *)ciphertext, length, &shift);
+    return shift;
 }
