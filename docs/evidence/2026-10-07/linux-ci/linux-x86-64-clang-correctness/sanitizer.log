@@ -1,0 +1,25 @@
+make test BUILD_DIR=build/sanitize CC="clang" CFLAGS="-std=c99 -g -O1 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-fsanitize=address,undefined"
+make[1]: Entering directory '/home/runner/work/lowlevel-crypto/lowlevel-crypto'
+mkdir -p build/sanitize
+clang -std=c99 -g -O1 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fsanitize=address,undefined -fno-omit-frame-pointer 01-xor/xor_cipher.c 01-xor/xor_cipher_tests.c -fsanitize=address,undefined -o build/sanitize/xor_tests
+clang -std=c99 -g -O1 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fsanitize=address,undefined -fno-omit-frame-pointer 02-caesar/caesar.c 02-caesar/caesar_tests.c -fsanitize=address,undefined -o build/sanitize/caesar_tests
+clang -std=c99 -g -O1 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fsanitize=address,undefined -fno-omit-frame-pointer 03-hash/hash.c 03-hash/hash_tests.c -fsanitize=address,undefined -o build/sanitize/hash_tests
+clang -std=c99 -g -O1 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fsanitize=address,undefined -fno-omit-frame-pointer 05-constant-time/ct_compare.c 05-constant-time/ct_compare_tests.c -fsanitize=address,undefined -o build/sanitize/compare_tests
+build/sanitize/xor_tests
+xor: 34 checks, 0 failures
+build/sanitize/caesar_tests
+caesar: 32 checks, 0 failures
+build/sanitize/hash_tests
+hash: 23 checks, 0 failures
+build/sanitize/compare_tests
+compare: 23 checks, 0 failures
+clang -std=c99 -g -O1 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -fno-lto bench/lab_bench.c 01-xor/xor_cipher.c 05-constant-time/ct_compare.c -fsanitize=address,undefined -o build/sanitize/lab_bench
+BENCH_BINARY=build/sanitize/lab_bench ./tests/test_benchmark_cli.sh
+benchmark CLI: 17 checks, 0 failures
+python3 -m unittest discover -s tests -p 'test_*.py'
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+OK
+make[1]: Leaving directory '/home/runner/work/lowlevel-crypto/lowlevel-crypto'

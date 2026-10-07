@@ -42,3 +42,21 @@ The early-exit distributions differ by mismatch position on this host. Full-scan
 Generated arm64 code retained XOR/fold vector instructions and external/indirect calls in the benchmark loop. The generated `.s` files remain in `build/benchmark/*/` for inspection. XOR checksum consumption is after the stop timestamp. These checks address optimizer removal, not all side channels.
 
 Profiles and full generated code remain in `build/coverage/` and `build/benchmark/`; source/test logs and portable CSV/JSON records are checked in here.
+
+## Native Linux follow-up
+
+[Run 37660477948](https://github.com/emreeilhan/lowlevel-crypto/actions/runs/37660477948)
+passed for committed source `02b753ec7be540b0e2d994918b1f2c187ec972f6`.
+GCC and Clang ran the C/benchmark-contract tests, ASan/UBSan with leak detection,
+and 3072 assembly equivalence vectors plus 13 wrapper/ABI/page-guard checks.
+The separate coverage job reports 223/236 lines and 190/216 branch outcomes
+for the documented C scope.
+
+The native x86-64 Clang 18 benchmark on the runner's AMD EPYC 7763 measured
+4096-byte checked XOR calls: median 79.158 ns C and 2558.600 ns assembly,
+31 samples per algorithm, 1000 calls per batch, three warm-up batches. The
+compiler-generated C is much faster in this particular workload; handwritten
+assembly is not automatically an optimization. These are observed wall-time
+batch results on a virtualized runner, not portable instruction timings.
+Raw CSV, distributions, source/binary context, generated code and logs are in
+`linux-ci/`; timing thresholds do not gate correctness.

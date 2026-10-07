@@ -1,0 +1,32 @@
+[
+  {
+    "experiment": "xor-asm",
+    "condition": "seeded",
+    "algorithm": "asm",
+    "length": 4096,
+    "rounds": 1000,
+    "seed": 20261007,
+    "samples": 31,
+    "unit": "nanoseconds_per_call",
+    "min": 2548.932,
+    "p10": 2550.495,
+    "median": 2558.6,
+    "p90": 2577.776,
+    "max": 2667.534
+  },
+  {
+    "experiment": "xor-asm",
+    "condition": "seeded",
+    "algorithm": "c",
+    "length": 4096,
+    "rounds": 1000,
+    "seed": 20261007,
+    "samples": 31,
+    "unit": "nanoseconds_per_call",
+    "min": 79.098,
+    "p10": 79.109,
+    "median": 79.158,
+    "p90": 79.98,
+    "max": 96.201
+  }
+]

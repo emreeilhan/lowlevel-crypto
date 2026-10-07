@@ -24,7 +24,7 @@ instrument handwritten assembly accesses.
 
 The local recorded build is Darwin x86-64 under Rosetta on an arm64 Apple M2.
 The Linux `.S` paths were cross-assembled into ELF objects; that is compile-only
-validation, not native Linux execution. The workflow separately runs native
-Linux x86-64 correctness before its benchmark. Its passing result and raw
-artifacts must be verified after publication. No ASM performance measurement
+validation, not native Linux execution. Native Linux x86-64 GCC/Clang correctness and the benchmark subsequently
+passed in [run 37660477948](https://github.com/emreeilhan/lowlevel-crypto/actions/runs/37660477948).
+The dated `linux-ci/` folder records that run and its raw artifacts. No ASM performance measurement
 was made under Rosetta.

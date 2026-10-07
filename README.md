@@ -76,9 +76,9 @@ is inferred from these experiments.
 
 [Recorded 7 October 2026 verification](docs/evidence/2026-10-07/README.md) includes
 before-fix failures, current C checks, macOS sanitizer/coverage data, Rosetta
-correctness and native arm64 C measurements. Native Linux execution and ASM
-performance await the actual CI run; cross-assembling an ELF object is not a
-Linux runtime test.
+correctness and native arm64 C measurements. Native Linux GCC/Clang correctness, ASan/UBSan, assembly ABI/page guards and
+the informational benchmark passed in [run 37660477948](https://github.com/emreeilhan/lowlevel-crypto/actions/runs/37660477948)
+for commit `02b753e`. Raw results are in `docs/evidence/2026-10-07/linux-ci/`.
 
 ## Historical notes
 

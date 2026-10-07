@@ -1,0 +1,13 @@
+mkdir -p build/native-x86-benchmark/correctness
+clang -std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror 01-xor/xor_cipher.c 01-xor/xor_cipher_tests.c  -o build/native-x86-benchmark/correctness/xor_tests
+clang -std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror 02-caesar/caesar.c 02-caesar/caesar_tests.c  -o build/native-x86-benchmark/correctness/caesar_tests
+clang -std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror 03-hash/hash.c 03-hash/hash_tests.c  -o build/native-x86-benchmark/correctness/hash_tests
+clang -std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror 05-constant-time/ct_compare.c 05-constant-time/ct_compare_tests.c  -o build/native-x86-benchmark/correctness/compare_tests
+build/native-x86-benchmark/correctness/xor_tests
+xor: 34 checks, 0 failures
+build/native-x86-benchmark/correctness/caesar_tests
+caesar: 32 checks, 0 failures
+build/native-x86-benchmark/correctness/hash_tests
+hash: 23 checks, 0 failures
+build/native-x86-benchmark/correctness/compare_tests
+compare: 23 checks, 0 failures

@@ -1,0 +1,5 @@
+mkdir -p build/native-x86-benchmark/correctness
+clang -std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror 01-xor/xor_cipher.c 01-xor/xor_asm_wrapper.c 01-xor/xor_asm_bytes.S 01-xor/xor_asm_abi.S 01-xor/xor_asm_tests.c  -o build/native-x86-benchmark/correctness/asm_tests
+build/native-x86-benchmark/correctness/asm_tests
+ASM byte-vector combinations: 3072 (correctness only; no timing)
+asm: 13 checks, 0 failures
