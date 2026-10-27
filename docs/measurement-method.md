@@ -47,6 +47,9 @@ native label. Use a host context that can read the necessary CPU/runtime fields.
 The CSV validator rejects malformed/mixed configurations, missing condition or
 A/B pairs, duplicate/noncontiguous samples, nonnumeric/out-of-range fields, and
 nonalternating order. It reports min/p10/median/p90/max nanoseconds per call.
+Percentiles use linear interpolation at index `(n - 1) * p` in the sorted
+sample values, where `p` is 0.1 for p10 or 0.9 for p90. The median is the
+middle value, or the mean of the two middle values for an even sample count.
 The local generated arm64 code retains external/indirect benchmark calls and
 vector XOR/fold instructions. This is an optimizer-retention inspection, not
 proof of constant-time code. Generated assembly remains available in the run

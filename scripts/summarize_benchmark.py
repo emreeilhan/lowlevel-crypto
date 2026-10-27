@@ -9,6 +9,13 @@ from pathlib import Path
 
 FIELDS = ['experiment', 'condition', 'sample', 'order', 'algorithm', 'length', 'rounds', 'seed', 'elapsed_ns', 'result_sink']
 
+def percentile(values, p):
+    """Linear interpolation at index (n - 1) * p in sorted values."""
+    position = (len(values) - 1) * p
+    lower = math.floor(position)
+    upper = math.ceil(position)
+    return values[lower] + (values[upper] - values[lower]) * (position - lower)
+
 def summarize(path):
     groups = {}
     seen = set()
@@ -71,10 +78,9 @@ def summarize(path):
     result = []
     for key, values in sorted(groups.items()):
         values.sort()
-        quantile = lambda p: values[math.ceil((len(values)-1)*p)]
         result.append(dict(zip(['experiment','condition','algorithm','length','rounds','seed'], key),
                            samples=len(values), unit='nanoseconds_per_call', min=min(values),
-                           p10=quantile(.1), median=statistics.median(values), p90=quantile(.9), max=max(values)))
+                           p10=percentile(values, .1), median=statistics.median(values), p90=percentile(values, .9), max=max(values)))
     return result
 
 if __name__ == '__main__':
