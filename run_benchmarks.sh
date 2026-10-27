@@ -3,13 +3,17 @@ set -euo pipefail
 cd "$(dirname "$0")"
 CC="${CC:-cc}"
 BENCH_CFLAGS="${BENCH_CFLAGS:--std=c99 -O2 -g -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wstrict-prototypes -Werror}"
+OUT="${BENCH_OUT:-build/benchmark}"
+mkdir -p "$OUT"
+# Remove only artifacts owned by this runner, including results from failed runs.
+rm -f "$OUT/raw.csv" "$OUT/summary.json" "$OUT/metadata.json" \
+    "$OUT/binary-context.json" "$OUT/correctness.log" "$OUT/asm-correctness.log" \
+    "$OUT/compare-generated.s" "$OUT/xor-generated.s" "$OUT/bench-generated.s"
 if [[ "$BENCH_CFLAGS" == *sanitize* || "$BENCH_CFLAGS" == *flto* ]]; then
     echo "Benchmark flags must exclude sanitizers and LTO" >&2; exit 2
 fi
-OUT="${BENCH_OUT:-build/benchmark}"
 EXPERIMENT="${EXPERIMENT:-compare}"
 LENGTH="${LENGTH:-64}"; ROUNDS="${ROUNDS:-1000}"; SAMPLES="${SAMPLES:-31}"; WARMUP="${WARMUP:-3}"; SEED="${SEED:-20261007}"
-mkdir -p "$OUT"
 make -B c-test CC="$CC" BUILD_DIR="$OUT/correctness" CFLAGS="$BENCH_CFLAGS" > "$OUT/correctness.log" 2>&1
 BINARY="$OUT/bin/lab_bench"
 if [[ "$EXPERIMENT" == xor-asm ]]; then
