@@ -12,6 +12,7 @@ LENGTH="${LENGTH:-64}"; ROUNDS="${ROUNDS:-1000}"; SAMPLES="${SAMPLES:-31}"; WARM
 mkdir -p "$OUT"
 make -B c-test CC="$CC" BUILD_DIR="$OUT/correctness" CFLAGS="$BENCH_CFLAGS" > "$OUT/correctness.log" 2>&1
 BINARY="$OUT/bin/lab_bench"
+BENCH_DEFINE=""
 if [[ "$EXPERIMENT" == xor-asm ]]; then
     if [[ "$(uname -m)" != x86_64 || "$(sysctl -n sysctl.proc_translated 2>/dev/null || true)" == 1 ]]; then
         echo "ASM performance waits for native x86-64 correctness; translated execution is excluded" >&2; exit 2
@@ -19,6 +20,7 @@ if [[ "$EXPERIMENT" == xor-asm ]]; then
     make -B asm-test CC="$CC" BUILD_DIR="$OUT/correctness" CFLAGS="$BENCH_CFLAGS" > "$OUT/asm-correctness.log" 2>&1
     make -B "$OUT/bin/lab_bench_asm" CC="$CC" BUILD_DIR="$OUT/bin" CFLAGS="$BENCH_CFLAGS"
     BINARY="$OUT/bin/lab_bench_asm"
+    BENCH_DEFINE="-DLAB_HAS_X86_ASM"
 else
     make -B "$BINARY" CC="$CC" BUILD_DIR="$OUT/bin" CFLAGS="$BENCH_CFLAGS"
 fi
@@ -29,5 +31,5 @@ python3 scripts/summarize_benchmark.py "$OUT/raw.csv" > "$OUT/summary.json"
 # Retain object/assembly output to inspect loop/call retention; no LTO used.
 "$CC" ${BENCH_CFLAGS} -fno-lto -S 05-constant-time/ct_compare.c -o "$OUT/compare-generated.s"
 "$CC" ${BENCH_CFLAGS} -fno-lto -S 01-xor/xor_cipher.c -o "$OUT/xor-generated.s"
-"$CC" ${BENCH_CFLAGS} -fno-lto -S bench/lab_bench.c -o "$OUT/bench-generated.s"
+"$CC" ${BENCH_CFLAGS} -fno-lto ${BENCH_DEFINE:+"$BENCH_DEFINE"} -S bench/lab_bench.c -o "$OUT/bench-generated.s"
 echo "Raw CSV, environment, distributions and generated code: $OUT"
