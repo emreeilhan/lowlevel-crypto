@@ -20,6 +20,19 @@ class CSVContractTests(unittest.TestCase):
         self.assertEqual(groups[0]['median'], 15)
         self.assertEqual(groups[1]['median'], 10)
         self.assertEqual(groups[0]['unit'], 'nanoseconds_per_call')
+    def test_interpolated_percentiles(self):
+        for values, expected in [([10, 30], (12, 20, 28)),
+                                 ([10, 20, 30, 40, 50], (14, 30, 46)),
+                                 ([7, 7, 7], (7, 7, 7))]:
+            rows = [HEADER]
+            for sample, value in enumerate(values):
+                for condition, order in [('zeros', sample % 2), ('ff', 1 - sample % 2)]:
+                    rows.append(f'xor-c,{condition},{sample},{order},c,4,1,5,{value},0\n')
+            with self.subTest(values=values):
+                for group in self.run_csv(''.join(rows)):
+                    self.assertEqual((group['p10'], group['median'], group['p90']), expected)
+                    self.assertLessEqual(group['p10'], group['median'])
+                    self.assertLessEqual(group['median'], group['p90'])
     def test_corrupt_artifacts(self):
         corrupt = [HEADER, VALID.replace('elapsed_ns','cycles'), VALID.replace(',20,',',NaN,'),
                    VALID.replace(',4,2,',',0,2,'), VALID + VALID.splitlines()[1] + '\n',
